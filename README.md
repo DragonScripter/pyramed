@@ -61,6 +61,35 @@ cd backend
 dotnet watch run
 ```
 
+
+##Folder Structure + Responsibility
+
+pyramed/                  <-- Main Git Repository Root
+├── frontend/
+  ├── src/
+  │   ├── components/       <-- Put UI modules here
+  │   │   ├── Registration.jsx  # OjieG-Code's file
+  │   │   └── MonitorView.jsx   # nugiraffe's file
+  │   ├── App.jsx           <-- The main router 
+  │   └── main.jsx
+  ├── .env                  <-- Hidden database credentials
+  └── .gitignore
+└── backend/                      
+    ├── BackgroundWorkers/        <-- OjieG-Code'S WORKSPACE (Simulation Loops)
+    │   └── .gitkeep
+    ├── Controllers/              <-- nugiraffe & OjieG-Code'S WORKSPACE (API Routes)
+    │   └── PatientController.cs   #  new database entry & query endpoint
+    ├── Middleware/               <-- DragonScripter'S WORKSPACE (Security & Auditing)
+    │   └── .gitkeep
+    ├── Models/                   <-- SHARED DATA STRUTURES (Database Mappings)
+    │   └── .gitkeep
+    ├── Services/                 <-- nugiraffe'S WORKSPACE (Medical Rules Engine)
+    │   └── .gitkeep
+    ├── Program.cs                <-- The main engine configuration file
+    ├── appsettings.json          <-- Local configuration keys
+    └── appsettings.Example.json
+
+
 ---
 
 ## Git Branching 
