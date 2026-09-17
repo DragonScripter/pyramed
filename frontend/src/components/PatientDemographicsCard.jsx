@@ -11,6 +11,9 @@ const PatientDemographicsCard = ({ patient }) => {
             <Typography variant="h6" gutterBottom>
                 Patient Demographics
             </Typography>
+            < Typography variant="body1">
+                <strong>Patient ID:</strong> {patient.id}
+            </Typography>
             <Typography variant="body1">
                 <strong>Name:</strong> {patient.name}
             </Typography>
@@ -18,7 +21,10 @@ const PatientDemographicsCard = ({ patient }) => {
                 <strong>Age:</strong> {patient.age}
             </Typography>
             <Typography variant="body1">
-                <strong>Gender:</strong> {patient.gender}
+                <strong>Status:</strong> {patient.status}
+            </Typography>
+            <Typography variant="body1">
+                <strong>Created At:</strong> {new Date(patient.createdAt).toLocaleString()}
             </Typography>
         </CardContent>
     </Card>
@@ -27,9 +33,11 @@ const PatientDemographicsCard = ({ patient }) => {
 
 PatientDemographicsCard.propTypes = {
   patient: PropTypes.shape({
+    id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     age: PropTypes.number.isRequired,
-    gender: PropTypes.string.isRequired
+    status: PropTypes.string.isRequired,
+    createdAt: PropTypes.string.isRequired
   }).isRequired
 };
 
