@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using backend.Models;
+using PyraMed.Api.Models;
 
 namespace backend.Controllers;
 

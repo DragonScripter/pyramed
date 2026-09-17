@@ -61,6 +61,38 @@ cd backend
 dotnet watch run
 ```
 
+
+## Folder Structure & Team Responsibilities
+
+```text
+pyramed-project/                    <-- Main Git Repository Root
+├── frontend/                       <-- React Code Base
+│   ├── src/
+│   │   ├── components/             
+│   │   │   ├── Registration.jsx    # OjieG-Code's file (Intake Forms)
+│   │   │   └── MonitorView.jsx     # nugiraffe's file (Bedside Monitor)
+│   │   ├── App.jsx                 # The main router & layout hub
+│   │   └── main.jsx
+│   ├── .env                        # Hidden database credentials (LOCAL ONLY)
+│   └── .gitignore
+│
+└── backend/                        <-- C# .NET CORE WEB API CORE
+    ├── BackgroundWorkers/          # OjieG-Code'S WORKSPACE (Simulation Loops)
+    │   └── .gitkeep
+    ├── Controllers/                # nugiraffe & OjieG-Code'S WORKSPACE (API Routes)
+    │   └── PatientController.cs    # Shared database entry & query endpoint
+    ├── Middleware/                 # DragonScripter'S WORKSPACE (Security & Auditing)
+    │   └── .gitkeep
+    ├── Models/                     # SHARED DATA STRUCTURES (Database Mappings)
+    │   └── .gitkeep
+    ├── Services/                   # nugiraffe'S WORKSPACE (Medical Rules Engine)
+    │   └── .gitkeep
+    ├── Program.cs                  # The main engine configuration file
+    ├── appsettings.json            # Local configuration keys (LOCAL ONLY)
+    └── appsettings.Example.json    # Safe template shared 
+```
+
+
 ---
 
 ## Git Branching 
