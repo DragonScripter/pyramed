@@ -7,7 +7,7 @@ namespace PyraMed.Api.Models
     public class Patient : BaseModel
     {
         [PrimaryKey("patient_id", false)]
-        public string PatientId { get; set; } = string.Empty;
+        public Guid PatientId { get; set; }
 
         [Column("name")]
         public string Name { get; set; } = string.Empty;
