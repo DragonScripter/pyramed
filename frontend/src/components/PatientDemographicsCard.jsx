@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Card, CardContent, Typography } from '@mui/material';
+import {
+  Alert,
+  Card,
+  CardContent,
+  CircularProgress,
+  Stack,
+  Typography,
+} from '@mui/material';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
@@ -53,43 +60,58 @@ const PatientDemographicsCard = ({ patientId: initialPatientId }) => {
   }, [selectedPatientId]);
 
   if (!selectedPatientId) {
-    return <Typography>Error: No patient selected.</Typography>;
+    return (
+      <Alert severity="info">
+        Select a patient to view bedside information.
+      </Alert>
+    );
   }
 
   if (isLoading) {
-    return <Typography>Loading patient information...</Typography>;
+    return (
+      <Card aria-busy="true">
+        <CardContent>
+          <Stack alignItems="center" spacing={1.5}>
+            <CircularProgress size={28} aria-label="Loading patient information" />
+            <Typography color="text.secondary">Loading patient information...</Typography>
+          </Stack>
+        </CardContent>
+      </Card>
+    );
   }
 
   if (error) {
-    return <Typography color="error">{error}</Typography>;
+    return <Alert severity="error">{error}</Alert>;
   }
 
   if (!patientData) {
-    return <Typography>Error: Patient information not found.</Typography>;
+    return <Alert severity="warning">Patient information not found.</Alert>;
   }
 
   return (
-    <Card>
-        <CardContent>
-            <Typography variant="h6" gutterBottom>
-                Patient Demographics
-            </Typography>
-            <Typography variant="body1">
-              <strong>Patient ID:</strong> {patientData.patientId ?? patientData.id}
-            </Typography>
-            <Typography variant="body1">
-              <strong>Name:</strong> {patientData.name}
-            </Typography>
-            <Typography variant="body1">
-              <strong>Age:</strong> {patientData.age}
-            </Typography>
-            <Typography variant="body1">
-              <strong>Status:</strong> {patientData.status}
-            </Typography>
-            <Typography variant="body1">
-              <strong>Created At:</strong> {new Date(patientData.createdAt).toLocaleString()}
-            </Typography>
-        </CardContent>
+    <Card component="section" aria-labelledby="patient-demographics-title">
+      <CardContent>
+        <Typography id="patient-demographics-title" variant="overline" color="text.secondary">
+          Patient demographics
+        </Typography>
+        <Typography variant="h5" component="h2" gutterBottom>
+          {patientData.name}
+        </Typography>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
+          <div>
+            <Typography variant="caption" color="text.secondary">Age</Typography>
+            <Typography variant="h6">{patientData.age} years</Typography>
+          </div>
+          <div>
+            <Typography variant="caption" color="text.secondary">Admission status</Typography>
+            <Typography variant="h6">{patientData.status}</Typography>
+          </div>
+          <div>
+            <Typography variant="caption" color="text.secondary">Patient ID</Typography>
+            <Typography variant="h6">{patientData.patientId ?? patientData.id}</Typography>
+          </div>
+        </Stack>
+      </CardContent>
     </Card>
   );
 };

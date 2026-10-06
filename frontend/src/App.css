@@ -153,6 +153,122 @@
   }
 }
 
+.bedside-chart {
+  width: min(100%, 1126px);
+  margin: 0 auto;
+  padding: 48px 40px;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.bedside-chart__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--border);
+}
+
+.bedside-chart__header h1 {
+  margin: 4px 0 0;
+  font-size: 42px;
+  letter-spacing: 0;
+}
+
+.bedside-chart__eyebrow {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.bedside-chart__status {
+  color: var(--text);
+  font-size: 14px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.bedside-chart__patient {
+  padding-top: 28px;
+}
+
+.bedside-chart__telemetry {
+  padding-top: 20px;
+}
+
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.telemetry-panel {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-left: 5px solid var(--accent);
+  border-radius: 8px;
+  background: var(--social-bg);
+}
+
+.telemetry-panel--heart-rate {
+  border-left-color: #d94f70;
+}
+
+.telemetry-panel--oxygen-saturation {
+  border-left-color: #1976a8;
+}
+
+.telemetry-panel__label {
+  color: var(--text);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.telemetry-panel__value {
+  color: var(--text-h);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.telemetry-panel__reading {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.telemetry-panel__unit {
+  color: var(--text);
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .bedside-chart {
+    padding: 28px 20px;
+  }
+
+  .bedside-chart__header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .bedside-chart__header h1 {
+    font-size: 34px;
+  }
+
+  .telemetry-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 #spacer {
   height: 88px;
   border-top: 1px solid var(--border);
