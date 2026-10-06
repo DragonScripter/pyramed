@@ -1,5 +1,6 @@
 
 import { useState } from 'react'
+import CriticalAlarmBanner from './components/CriticalAlarmBanner'
 import LiveTelemetryCard from './components/LiveTelemetryCard'
 import PatientDemographicsCard from './components/PatientDemographicsCard'
 import './App.css'
@@ -28,9 +29,15 @@ function App() {
   ))
   const demoTelemetry = import.meta.env.DEV
     && new URLSearchParams(window.location.search).get('demoTelemetry') === '1'
+  const demoAlarm = import.meta.env.DEV
+    && new URLSearchParams(window.location.search).get('demoAlarm') === '1'
 
   return (
     <main className="bedside-chart">
+      <CriticalAlarmBanner
+        active={demoAlarm}
+        message="Demo only: a critical vital threshold was exceeded."
+      />
       <header className="bedside-chart__header">
         <div>
           <p className="bedside-chart__eyebrow">Clinical monitoring</p>
