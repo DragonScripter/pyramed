@@ -35,3 +35,4 @@ backend/obj/
 # local development secret file
 backend/appsettings.Development.json
 backend/appsettings.json
+backend/appsetting.json
