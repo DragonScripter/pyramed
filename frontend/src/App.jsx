@@ -120,13 +120,19 @@
 // }
 
 // export default App
+import { Routes, Route } from "react-router-dom";
 import Registration from './components/Registration'
-
+import PatientDemographicsCard from './components/PatientDemographicsCard.jsx'
+import HamburgerMenu from "./components/HambugerMenu.jsx";
 function App() {
   return (
-    <main>
-      <Registration />
-    </main>
+    <>
+    <HamburgerMenu/>
+        <Routes>
+          <Route path="/registration" element={<Registration />} />
+          <Route path="/demographics" element={<PatientDemographicsCard patientId="12345" />} />
+        </Routes>
+    </>
   )
 }
 
