@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import './HamburgerMenu.css'
 
-function HamburgerMenu() {
+function HamburgerMenu({ patientId }) {
   const [isOpen, setIsOpen] = useState(false)
 
   const close = () => setIsOpen(false)
@@ -23,10 +23,13 @@ function HamburgerMenu() {
       {isOpen && (
         <ul className="hamburger-menu">
           <li>
+            <Link to='/' onClick={close}>Live Bedside Chart</Link>
+          </li>
+          <li>
             <Link to="/registration" onClick={close}>Patient Registration</Link>
           </li>
           <li>
-            <Link to="/demographics" onClick={close}>Patient Info</Link>
+            <Link to="/demo-telemetry" onClick={close}>Demo Telemetry</Link>
           </li>
         </ul>
       )}

@@ -51,4 +51,39 @@ public class PatientController : ControllerBase
             createdAt = createdPatient.CreatedAt
         });
     }
+    [HttpGet("{patientId}")]
+    public async Task<IActionResult> GetPatient(string patientId)
+    {
+        if (!Guid.TryParse(patientId, out var id))
+        {
+            return BadRequest(new { message = "Invalid patient ID." });
+        }
+        try
+        {
+        var response = await _supabase
+            .From<Patient>()
+            .Where(x => x.PatientId == id)
+            .Get();
+
+        var patient = response.Models.FirstOrDefault();
+
+        if (patient == null)
+        {
+            return NotFound("Patient not found.");
+        }
+
+        return Ok(new
+        {
+            patientId = patient.PatientId,
+            name = patient.Name,
+            age = patient.Age,
+            status = patient.Status,
+            createdAt = patient.CreatedAt
+        });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred while retrieving the patient.", error = ex.Message });
+        }
+    }
 }

@@ -1,137 +1,77 @@
-// import { useState } from 'react'
-// import heroImg from './assets/hero.png'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from './assets/vite.svg'
-// import './App.css'
-
-// function App() {
-//   const [count, setCount] = useState(0)
-
-//   return (
-//     <>
-//       <section id="center">
-//         <div className="hero">
-//           <img src={heroImg} className="base" width="170" height="179" alt="" />
-//           <img src={reactLogo} className="framework" alt="React logo" />
-//           <img src={viteLogo} className="vite" alt="Vite logo" />
-//         </div>
-//         <div>
-//           <h1>Get started</h1>
-//           <p>
-//             Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-//           </p>
-//         </div>
-//         <button
-//           type="button"
-//           className="counter"
-//           onClick={() => setCount((count) => count + 1)}
-//         >
-//           Count is {count}
-//         </button>
-//       </section>
-
-//       <div className="ticks"></div>
-
-//       <section id="next-steps">
-//         <div id="docs">
-//           <svg className="icon" role="presentation" aria-hidden="true">
-//             <use href="/icons.svg#documentation-icon"></use>
-//           </svg>
-//           <h2>Documentation</h2>
-//           <p>Your questions, answered</p>
-//           <ul>
-//             <li>
-//               <a href="https://vite.dev/" target="_blank">
-//                 <img className="logo" src={viteLogo} alt="" />
-//                 Explore Vite
-//               </a>
-//             </li>
-//             <li>
-//               <a href="https://react.dev/" target="_blank">
-//                 <img className="button-icon" src={reactLogo} alt="" />
-//                 Learn more
-//               </a>
-//             </li>
-//           </ul>
-//         </div>
-//         <div id="social">
-//           <svg className="icon" role="presentation" aria-hidden="true">
-//             <use href="/icons.svg#social-icon"></use>
-//           </svg>
-//           <h2>Connect with us</h2>
-//           <p>Join the Vite community</p>
-//           <ul>
-//             <li>
-//               <a href="https://github.com/vitejs/vite" target="_blank">
-//                 <svg
-//                   className="button-icon"
-//                   role="presentation"
-//                   aria-hidden="true"
-//                 >
-//                   <use href="/icons.svg#github-icon"></use>
-//                 </svg>
-//                 GitHub
-//               </a>
-//             </li>
-//             <li>
-//               <a href="https://chat.vite.dev/" target="_blank">
-//                 <svg
-//                   className="button-icon"
-//                   role="presentation"
-//                   aria-hidden="true"
-//                 >
-//                   <use href="/icons.svg#discord-icon"></use>
-//                 </svg>
-//                 Discord
-//               </a>
-//             </li>
-//             <li>
-//               <a href="https://x.com/vite_js" target="_blank">
-//                 <svg
-//                   className="button-icon"
-//                   role="presentation"
-//                   aria-hidden="true"
-//                 >
-//                   <use href="/icons.svg#x-icon"></use>
-//                 </svg>
-//                 X.com
-//               </a>
-//             </li>
-//             <li>
-//               <a href="https://bsky.app/profile/vite.dev" target="_blank">
-//                 <svg
-//                   className="button-icon"
-//                   role="presentation"
-//                   aria-hidden="true"
-//                 >
-//                   <use href="/icons.svg#bluesky-icon"></use>
-//                 </svg>
-//                 Bluesky
-//               </a>
-//             </li>
-//           </ul>
-//         </div>
-//       </section>
-
-//       <div className="ticks"></div>
-//       <section id="spacer"></section>
-//     </>
-//   )
-// }
-
-// export default App
-import { Routes, Route } from "react-router-dom";
+import { useState } from 'react'
+import { Routes, Route } from 'react-router-dom'
+import LiveTelemetryCard from './components/LiveTelemetryCard'
+import PatientDemographicsCard from './components/PatientDemographicsCard'
 import Registration from './components/Registration'
-import PatientDemographicsCard from './components/PatientDemographicsCard.jsx'
-import HamburgerMenu from "./components/HambugerMenu.jsx";
+import HamburgerMenu from './components/HambugerMenu.jsx'
+import './App.css'
+
+const demoVitals = [
+  { heartRate: 72, spO2: 98 },
+  { heartRate: 75, spO2: 97 }, 
+  { heartRate: 71, spO2: 99 },
+]
+
+const subscribeToDemoVitals = (onUpdate) => {
+  let readingIndex = 0
+  const intervalId = window.setInterval(() => {
+    onUpdate(demoVitals[readingIndex])
+    readingIndex = (readingIndex + 1) % demoVitals.length
+  }, 1200)
+
+  return () => window.clearInterval(intervalId)
+}
+
+function BedsideChart({ patientId, demoTelemetry }) {
+  return (
+    <main className="bedside-chart">
+      <header className="bedside-chart__header">
+        <div>
+          <p className="bedside-chart__eyebrow">Clinical monitoring</p>
+          <h1>Bedside Chart</h1>
+        </div>
+        <span className="bedside-chart__status">
+          {demoTelemetry ? 'Demo telemetry active' : 'No telemetry connected'}
+        </span>
+      </header>
+
+      <section className="bedside-chart__patient" aria-label="Patient demographics">
+        <PatientDemographicsCard patientId={patientId} />
+      </section>
+
+      <section className="bedside-chart__telemetry" aria-label="Live bedside telemetry">
+        <LiveTelemetryCard
+          subscribeToVitals={demoTelemetry ? subscribeToDemoVitals : undefined}
+        />
+      </section>
+    </main>
+  )
+}
+
 function App() {
+  const [patientId] = useState(
+    () =>
+      new URLSearchParams(window.location.search).get('patientId') ??
+      import.meta.env.VITE_PATIENT_ID ??
+      ''
+  )
+
+  const demoTelemetry =
+    import.meta.env.DEV &&
+    new URLSearchParams(window.location.search).get('demoTelemetry') === '1'
+
   return (
     <>
-    <HamburgerMenu/>
-        <Routes>
-          <Route path="/registration" element={<Registration />} />
-          <Route path="/demographics" element={<PatientDemographicsCard patientId="12345" />} />
-        </Routes>
+      <HamburgerMenu patientId={patientId} />
+      <Routes>
+        <Route path="/" element={<BedsideChart patientId={patientId} />} />
+        <Route path="/registration" element={<Registration />} />
+        <Route path="*" element={<p>Page not found</p>} />
+        <Route
+          path="/demo-telemetry"
+          element={<BedsideChart patientId={patientId} demoTelemetry={true} />}
+        />
+      </Routes>
     </>
   )
 }
