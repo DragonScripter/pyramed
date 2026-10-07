@@ -39,13 +39,16 @@ const LiveTelemetryCard = ({ subscribeToVitals }) => {
 
 			setVitals((currentVitals) => ({
 				heartRate: update.heartRate !== undefined
+				// reset heartrate and spO2 to null if the update is an empty object, otherwise preserve the current values
 					? update.heartRate
+					: Object.keys(update).length === 0
+					? null
 					: currentVitals.heartRate,
 				spO2: update.spO2 !== undefined
 					? update.spO2
-					: update.oxygenSaturation !== undefined
-						? update.oxygenSaturation
-						: currentVitals.spO2,
+					: Object.keys(update).length === 0
+					? null
+					: currentVitals.spO2,
 			}));
 		};
 

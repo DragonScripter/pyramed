@@ -37,7 +37,7 @@ function App() {
           <h1>Bedside Chart</h1>
         </div>
         <span className="bedside-chart__status">
-          {demoTelemetry ? 'Demo telemetry active' : 'Live patient record'}
+          {demoTelemetry ? 'Demo telemetry active' : 'No telemetry connected'}
         </span>
       </header>
 
