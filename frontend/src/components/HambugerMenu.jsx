@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import './HamburgerMenu.css'
 
-function HamburgerMenu({ patientId }) {
+function HamburgerMenu() {
   const [isOpen, setIsOpen] = useState(false)
 
   const close = () => setIsOpen(false)

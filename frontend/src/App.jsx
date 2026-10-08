@@ -56,10 +56,6 @@ function App() {
       ''
   )
 
-  const demoTelemetry =
-    import.meta.env.DEV &&
-    new URLSearchParams(window.location.search).get('demoTelemetry') === '1'
-
   return (
     <>
       <HamburgerMenu patientId={patientId} />
