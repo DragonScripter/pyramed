@@ -45,10 +45,12 @@ const LiveTelemetryCard = ({ subscribeToVitals }) => {
 					? null
 					: currentVitals.heartRate,
 				spO2: update.spO2 !== undefined
-					? update.spO2
-					: Object.keys(update).length === 0
-					? null
-					: currentVitals.spO2,
+    ? update.spO2
+    : update.oxygenSaturation !== undefined
+    ? update.oxygenSaturation
+    : Object.keys(update).length === 0
+    ? null
+    : currentVitals.spO2,
 			}));
 		};
 
