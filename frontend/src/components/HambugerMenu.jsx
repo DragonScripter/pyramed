@@ -1,9 +1,18 @@
+
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useMatch } from 'react-router-dom' //  Added useMatch
 import './HamburgerMenu.css'
 
-function HamburgerMenu() {
+//  Added patientId prop from App.jsx
+function HamburgerMenu({ patientId }) {
   const [isOpen, setIsOpen] = useState(false)
+
+  //  Get the patient ID from the current URL
+  const patientMatch = useMatch('/patients/:patientId/*')
+
+ //   Use the URL patient ID, or fall back to App's default ID
+  const currentPatientId =
+    patientMatch?.params.patientId ?? patientId
 
   const close = () => setIsOpen(false)
 
@@ -23,13 +32,33 @@ function HamburgerMenu() {
       {isOpen && (
         <ul className="hamburger-menu">
           <li>
-            <Link to='/' onClick={close}>Live Bedside Chart</Link>
+            <Link to="/" onClick={close}>
+              Live Bedside Chart
+            </Link>
           </li>
+
+          {/* NEW: Show Patient Info only when a patient ID exists */}
+          {currentPatientId && (
+            <li>
+              <Link
+                to={`/patients/${currentPatientId}`}
+                onClick={close}
+              >
+                Patient Info
+              </Link>
+            </li>
+          )}
+
           <li>
-            <Link to="/registration" onClick={close}>Patient Registration</Link>
+            <Link to="/registration" onClick={close}>
+              Patient Registration
+            </Link>
           </li>
+
           <li>
-            <Link to="/demo-telemetry" onClick={close}>Demo Telemetry</Link>
+            <Link to="/demo-telemetry" onClick={close}>
+              Demo Telemetry
+            </Link>
           </li>
         </ul>
       )}
