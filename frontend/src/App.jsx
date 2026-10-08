@@ -1,12 +1,14 @@
-
 import { useState } from 'react'
+import { Routes, Route } from 'react-router-dom'
 import LiveTelemetryCard from './components/LiveTelemetryCard'
 import PatientDemographicsCard from './components/PatientDemographicsCard'
+import Registration from './components/Registration'
+import HamburgerMenu from './components/HambugerMenu.jsx'
 import './App.css'
 
 const demoVitals = [
   { heartRate: 72, spO2: 98 },
-  { heartRate: 75, oxygenSaturation: 97 },
+  { heartRate: 75, spO2: 97 }, 
   { heartRate: 71, spO2: 99 },
 ]
 
@@ -20,15 +22,7 @@ const subscribeToDemoVitals = (onUpdate) => {
   return () => window.clearInterval(intervalId)
 }
 
-function App() {
-  const [patientId] = useState(() => (
-    new URLSearchParams(window.location.search).get('patientId')
-      ?? import.meta.env.VITE_PATIENT_ID
-      ?? ''
-  ))
-  const demoTelemetry = import.meta.env.DEV
-    && new URLSearchParams(window.location.search).get('demoTelemetry') === '1'
-
+function BedsideChart({ patientId, demoTelemetry }) {
   return (
     <main className="bedside-chart">
       <header className="bedside-chart__header">
@@ -46,9 +40,36 @@ function App() {
       </section>
 
       <section className="bedside-chart__telemetry" aria-label="Live bedside telemetry">
-        <LiveTelemetryCard subscribeToVitals={demoTelemetry ? subscribeToDemoVitals : undefined} />
+        <LiveTelemetryCard
+          subscribeToVitals={demoTelemetry ? subscribeToDemoVitals : undefined}
+        />
       </section>
     </main>
   )
 }
+
+function App() {
+  const [patientId] = useState(
+    () =>
+      new URLSearchParams(window.location.search).get('patientId') ??
+      import.meta.env.VITE_PATIENT_ID ??
+      ''
+  )
+
+  return (
+    <>
+      <HamburgerMenu patientId={patientId} />
+      <Routes>
+        <Route path="/" element={<BedsideChart patientId={patientId} />} />
+        <Route path="/registration" element={<Registration />} />
+        <Route path="*" element={<p>Page not found</p>} />
+        <Route
+          path="/demo-telemetry"
+          element={<BedsideChart patientId={patientId} demoTelemetry={true} />}
+        />
+      </Routes>
+    </>
+  )
+}
+
 export default App
