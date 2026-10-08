@@ -51,6 +51,46 @@ public class PatientController : ControllerBase
             createdAt = createdPatient.CreatedAt
         });
     }
+    // Ticket #16: Get a paginated list of patients
+    [HttpGet]
+    public async Task<IActionResult> GetPatients(
+        [FromQuery] int limit = 20,
+        [FromQuery] int offset = 0)
+    {
+        if (limit < 1 || limit > 100 || offset < 0)
+        {
+            return BadRequest(new
+            {
+                message = "Limit must be between 1 and 100, and offset cannot be negative."
+            });
+        }
+
+        try
+        {
+           var response = await _supabase
+    .From<Patient>()
+    .Order(x => x.PatientId, Postgrest.Constants.Ordering.Ascending)
+    .Range(offset, offset + limit - 1)
+    .Get();
+
+            var patients = response.Models.Select(patient => new
+            {
+                patientId = patient.PatientId,
+                name = patient.Name,
+                status = patient.Status
+            }).ToList();
+
+            return Ok(patients);
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, new
+            {
+                message = "An error occurred while retrieving patients."
+            });
+        }
+    }
+
     [HttpGet("{patientId}")]
     public async Task<IActionResult> GetPatient(string patientId)
     {
