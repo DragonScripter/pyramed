@@ -111,6 +111,29 @@ describe('LiveTelemetryCard', () => {
 		});
 	});
 
+	it('alarms at SpO2 89 and heart rate 121 independently', async () => {
+		const stream = createVitalsStream();
+		const onAlarmChange = vi.fn();
+		render(
+			<LiveTelemetryCard
+				subscribeToVitals={stream.subscribeToVitals}
+				onAlarmChange={onAlarmChange}
+			/>
+		);
+
+		await act(async () => stream.emit({ heartRate: 72, spO2: 89 }));
+		expect(onAlarmChange).toHaveBeenLastCalledWith({
+			isAlarmActive: true,
+			violations: [{ metric: 'SpO2', value: 89, unit: '%' }],
+		});
+
+		await act(async () => stream.emit({ heartRate: 121, spO2: 97 }));
+		expect(onAlarmChange).toHaveBeenLastCalledWith({
+			isAlarmActive: true,
+			violations: [{ metric: 'HR', value: 121, unit: 'bpm' }],
+		});
+	});
+
 	it('unsubscribes when the component unmounts', () => {
 		const stream = createVitalsStream();
 		const { unmount } = render(

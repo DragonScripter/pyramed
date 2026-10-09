@@ -9,7 +9,8 @@ import './App.css'
 
 const demoVitals = [
   { heartRate: 72, spO2: 98 },
-  { heartRate: 130, spO2: 88 },
+  { heartRate: 72, spO2: 89 },
+  { heartRate: 121, spO2: 97 },
   { heartRate: 75, oxygenSaturation: 97 },
   { heartRate: 71, spO2: 99 },
 ]
@@ -19,7 +20,7 @@ const subscribeToDemoVitals = (onUpdate) => {
   const intervalId = window.setInterval(() => {
     onUpdate(demoVitals[readingIndex])
     readingIndex = (readingIndex + 1) % demoVitals.length
-  }, 1200)
+  }, 2500)
 
   return () => window.clearInterval(intervalId)
 }
