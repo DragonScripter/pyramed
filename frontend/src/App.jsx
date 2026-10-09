@@ -26,13 +26,13 @@ const subscribeToDemoVitals = (onUpdate) => {
 
 function BedsideChart({ patientId, demoTelemetry = false }) {
   const [alarmState, setAlarmState] = useState({ isAlarmActive: false, violations: [] })
-  const alarmMessage = alarmState.violations
-    .map(({ metric, value, unit }) => `${metric}: ${value}${unit === '%' ? unit : ` ${unit}`}`)
-    .join(' | ')
 
   return (
     <main className="bedside-chart">
-      <CriticalAlarmBanner active={alarmState.isAlarmActive} message={alarmMessage} />
+      <CriticalAlarmBanner
+        active={alarmState.isAlarmActive}
+        violations={alarmState.violations}
+      />
       <header className="bedside-chart__header">
         <div>
           <p className="bedside-chart__eyebrow">Clinical monitoring</p>

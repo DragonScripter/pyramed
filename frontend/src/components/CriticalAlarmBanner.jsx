@@ -1,10 +1,19 @@
 import PropTypes from 'prop-types';
 import './CriticalAlarmBanner.css';
 
-const CriticalAlarmBanner = ({
-	active = false,
-	message = 'Critical vital sign detected. Immediate assessment required.',
-}) => {
+const formatViolation = ({ metric, value, unit }) => {
+	if (metric === 'SpO2') {
+		return `SpO2: ${value}${unit} (below the 90% critical threshold)`;
+	}
+
+	if (metric === 'HR') {
+		return `Heart rate: ${value} ${unit} (above the 120 bpm critical threshold)`;
+	}
+
+	return `${metric}: ${value} ${unit} (critical threshold exceeded)`;
+};
+
+const CriticalAlarmBanner = ({ active = false, violations = [] }) => {
 	if (!active) {
 		return null;
 	}
@@ -16,7 +25,11 @@ const CriticalAlarmBanner = ({
 			</span>
 			<div>
 				<p className="critical-alarm-banner__title">Critical vital alert</p>
-				<p className="critical-alarm-banner__message">{message}</p>
+				<ul className="critical-alarm-banner__violations">
+					{violations.map(({ metric, value, unit }) => (
+						<li key={metric}>{formatViolation({ metric, value, unit })}</li>
+					))}
+				</ul>
 			</div>
 		</section>
 	);
@@ -24,7 +37,11 @@ const CriticalAlarmBanner = ({
 
 CriticalAlarmBanner.propTypes = {
 	active: PropTypes.bool,
-	message: PropTypes.string,
+	violations: PropTypes.arrayOf(PropTypes.shape({
+		metric: PropTypes.string.isRequired,
+		value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+		unit: PropTypes.string.isRequired,
+	})),
 };
 
 export default CriticalAlarmBanner;

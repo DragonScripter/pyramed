@@ -14,11 +14,20 @@ describe('CriticalAlarmBanner', () => {
 		expect(container).toBeEmptyDOMElement();
 	});
 
-	it('announces the critical alert when active', () => {
-		render(<CriticalAlarmBanner active message="Heart rate is critical." />);
+	it('shows the exact measurements and threshold warnings when active', () => {
+		render(
+			<CriticalAlarmBanner
+				active
+				violations={[
+					{ metric: 'SpO2', value: 88, unit: '%' },
+					{ metric: 'HR', value: 130, unit: 'bpm' },
+				]}
+			/>
+		);
 
 		expect(screen.getByRole('alert')).toBeInTheDocument();
 		expect(screen.getByText('Critical vital alert')).toBeInTheDocument();
-		expect(screen.getByText('Heart rate is critical.')).toBeInTheDocument();
+		expect(screen.getByText('SpO2: 88% (below the 90% critical threshold)')).toBeInTheDocument();
+		expect(screen.getByText('Heart rate: 130 bpm (above the 120 bpm critical threshold)')).toBeInTheDocument();
 	});
 });

@@ -27,7 +27,7 @@
 }
 
 .critical-alarm-banner__title,
-.critical-alarm-banner__message {
+.critical-alarm-banner__violations {
 	margin: 0;
 }
 
@@ -37,9 +37,10 @@
 	text-transform: uppercase;
 }
 
-.critical-alarm-banner__message {
+.critical-alarm-banner__violations {
 	margin-top: 2px;
 	font-size: 14px;
+	padding-left: 18px;
 }
 
 @keyframes critical-alarm-blink {
