@@ -1,8 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Card, CardContent, Typography } from '@mui/material';
 
 const formatVital = (value) => value ?? '--';
+const toNumericVital = (value) => {
+	if (value === null || value === undefined || value === '') {
+		return null;
+	}
+
+	const numericValue = Number(value);
+	return Number.isFinite(numericValue) ? numericValue : null;
+};
 
 const TelemetryPanel = ({ label, value, unit, tone }) => (
 	<div className={`telemetry-panel telemetry-panel--${tone}`}>
@@ -20,11 +28,9 @@ const TelemetryPanel = ({ label, value, unit, tone }) => (
 	</div>
 );
 
-const LiveTelemetryCard = ({ subscribeToVitals }) => {
-	const [vitals, setVitals] = useState({
-		heartRate: null,
-		spO2: null,
-	});
+const LiveTelemetryCard = ({ subscribeToVitals, onAlarmChange }) => {
+	const currentVitalsRef = useRef({ heartRate: null, spO2: null });
+	const [vitals, setVitals] = useState({ heartRate: null, spO2: null });
 
 	useEffect(() => {
 		if (!subscribeToVitals) {
@@ -37,21 +43,40 @@ const LiveTelemetryCard = ({ subscribeToVitals }) => {
 				return;
 			}
 
-			setVitals((currentVitals) => ({
+			const nextVitals = {
 				heartRate: update.heartRate !== undefined
 					? update.heartRate
-					: currentVitals.heartRate,
+					: currentVitalsRef.current.heartRate,
 				spO2: update.spO2 !== undefined
 					? update.spO2
 					: update.oxygenSaturation !== undefined
 						? update.oxygenSaturation
-						: currentVitals.spO2,
-			}));
+						: currentVitalsRef.current.spO2,
+			};
+			currentVitalsRef.current = nextVitals;
+			setVitals(nextVitals);
+
+			const violations = [];
+			const oxygenSaturation = toNumericVital(nextVitals.spO2);
+			const heartRate = toNumericVital(nextVitals.heartRate);
+
+			if (oxygenSaturation !== null && oxygenSaturation < 90) {
+				violations.push({ metric: 'SpO2', value: oxygenSaturation, unit: '%' });
+			}
+
+			if (heartRate !== null && heartRate > 120) {
+				violations.push({ metric: 'HR', value: heartRate, unit: 'bpm' });
+			}
+
+			onAlarmChange?.({
+				isAlarmActive: violations.length > 0,
+				violations,
+			});
 		};
 
 		const unsubscribe = subscribeToVitals(handleVitalsUpdate);
 		return typeof unsubscribe === 'function' ? unsubscribe : undefined;
-	}, [subscribeToVitals]);
+	}, [subscribeToVitals, onAlarmChange]);
 
 	return (
 		<Card component="section" className="live-telemetry-card" aria-labelledby="live-telemetry-title">
@@ -83,6 +108,7 @@ const LiveTelemetryCard = ({ subscribeToVitals }) => {
 
 LiveTelemetryCard.propTypes = {
 	subscribeToVitals: PropTypes.func,
+	onAlarmChange: PropTypes.func,
 };
 
 TelemetryPanel.propTypes = {

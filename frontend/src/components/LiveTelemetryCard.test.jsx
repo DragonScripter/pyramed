@@ -48,6 +48,46 @@ describe('LiveTelemetryCard', () => {
 		expect(screen.getByText('97')).toBeInTheDocument();
 	});
 
+	it('activates alarms for breached thresholds and clears them when values normalize', async () => {
+		const stream = createVitalsStream();
+		const onAlarmChange = vi.fn();
+		render(
+			<LiveTelemetryCard
+				subscribeToVitals={stream.subscribeToVitals}
+				onAlarmChange={onAlarmChange}
+			/>
+		);
+
+		await act(async () => stream.emit({ heartRate: 120, spO2: 90 }));
+		expect(onAlarmChange).toHaveBeenLastCalledWith({
+			isAlarmActive: false,
+			violations: [],
+		});
+
+		await act(async () => stream.emit({ heartRate: 130, spO2: 88 }));
+		expect(onAlarmChange).toHaveBeenLastCalledWith({
+			isAlarmActive: true,
+			violations: [
+				{ metric: 'SpO2', value: 88, unit: '%' },
+				{ metric: 'HR', value: 130, unit: 'bpm' },
+			],
+		});
+		expect(screen.getByText('130')).toBeInTheDocument();
+		expect(screen.getByText('88')).toBeInTheDocument();
+
+		await act(async () => stream.emit({ heartRate: 120 }));
+		expect(onAlarmChange).toHaveBeenLastCalledWith({
+			isAlarmActive: true,
+			violations: [{ metric: 'SpO2', value: 88, unit: '%' }],
+		});
+
+		await act(async () => stream.emit({ spO2: 90 }));
+		expect(onAlarmChange).toHaveBeenLastCalledWith({
+			isAlarmActive: false,
+			violations: [],
+		});
+	});
+
 	it('unsubscribes when the component unmounts', () => {
 		const stream = createVitalsStream();
 		const { unmount } = render(

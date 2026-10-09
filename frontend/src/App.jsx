@@ -7,6 +7,7 @@ import './App.css'
 
 const demoVitals = [
   { heartRate: 72, spO2: 98 },
+  { heartRate: 130, spO2: 88 },
   { heartRate: 75, oxygenSaturation: 97 },
   { heartRate: 71, spO2: 99 },
 ]
@@ -22,6 +23,7 @@ const subscribeToDemoVitals = (onUpdate) => {
 }
 
 function App() {
+  const [alarmState, setAlarmState] = useState({ isAlarmActive: false, violations: [] })
   const [patientId] = useState(() => (
     new URLSearchParams(window.location.search).get('patientId')
       ?? import.meta.env.VITE_PATIENT_ID
@@ -31,12 +33,15 @@ function App() {
     && new URLSearchParams(window.location.search).get('demoTelemetry') === '1'
   const demoAlarm = import.meta.env.DEV
     && new URLSearchParams(window.location.search).get('demoAlarm') === '1'
+  const alarmMessage = alarmState.violations
+    .map(({ metric, value, unit }) => `${metric}: ${value}${unit === '%' ? unit : ` ${unit}`}`)
+    .join(' | ')
 
   return (
     <main className="bedside-chart">
       <CriticalAlarmBanner
-        active={demoAlarm}
-        message="Demo only: a critical vital threshold was exceeded."
+        active={demoAlarm || alarmState.isAlarmActive}
+        message={demoAlarm ? 'Demo only: a critical vital threshold was exceeded.' : alarmMessage}
       />
       <header className="bedside-chart__header">
         <div>
@@ -53,7 +58,10 @@ function App() {
       </section>
 
       <section className="bedside-chart__telemetry" aria-label="Live bedside telemetry">
-        <LiveTelemetryCard subscribeToVitals={demoTelemetry ? subscribeToDemoVitals : undefined} />
+        <LiveTelemetryCard
+          subscribeToVitals={demoTelemetry ? subscribeToDemoVitals : undefined}
+          onAlarmChange={setAlarmState}
+        />
       </section>
     </main>
   )
