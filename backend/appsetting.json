@@ -1,0 +1,13 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "Supabase": {
+    "Url": "INSERT_YOUR_SHARED_SUPABASE_CLOUD_URL_HERE",
+    "Key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJuYXVqdGx0ZnRnc2xhcnZmc2hhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4OTUyMjU2NiwiZXhwIjoyMTA1MDk4NTY2fQ.XQ8eGmcAu3AbPOBNyIN8bxcXEfLOKgbjz1OZfylXGxY"
+  }
+}

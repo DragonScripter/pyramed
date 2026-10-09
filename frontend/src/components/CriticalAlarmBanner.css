@@ -1,0 +1,56 @@
+.critical-alarm-banner {
+	display: grid;
+	grid-template-columns: 40px minmax(0, 1fr);
+	align-items: center;
+	gap: 14px;
+	margin-bottom: 20px;
+	padding: 16px 20px;
+	border: 2px solid #ffffff;
+	border-left-width: 8px;
+	border-radius: 4px;
+	background: #b42318;
+	box-shadow: 0 0 0 2px #7a1912;
+	color: #ffffff;
+}
+
+.critical-alarm-banner__indicator {
+	display: grid;
+	width: 32px;
+	height: 32px;
+	place-items: center;
+	border: 2px solid currentColor;
+	border-radius: 50%;
+	font-size: 22px;
+	font-weight: 800;
+	line-height: 1;
+	animation: critical-alarm-blink 900ms steps(2, start) infinite;
+}
+
+.critical-alarm-banner__title,
+.critical-alarm-banner__violations {
+	margin: 0;
+}
+
+.critical-alarm-banner__title {
+	font-size: 16px;
+	font-weight: 800;
+	text-transform: uppercase;
+}
+
+.critical-alarm-banner__violations {
+	margin-top: 2px;
+	font-size: 14px;
+	padding-left: 18px;
+}
+
+@keyframes critical-alarm-blink {
+	50% {
+		opacity: 0.25;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.critical-alarm-banner__indicator {
+		animation: none;
+	}
+}
