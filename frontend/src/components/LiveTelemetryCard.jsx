@@ -43,17 +43,39 @@ const LiveTelemetryCard = ({ subscribeToVitals, onAlarmChange }) => {
 				return;
 			}
 
-			const nextVitals = {
-				heartRate: update.heartRate !== undefined
-				// reset heartrate and spO2 to null if the update is an empty object, otherwise preserve the current values
-					? update.heartRate
-					: currentVitals.heartRate,
-				spO2: update.spO2 !== undefined
-					? update.spO2
-					: update.oxygenSaturation !== undefined
-						? update.oxygenSaturation
-						: currentVitals.spO2,
-			}));
+			const isEmptyUpdate = Object.keys(update).length === 0;
+			const nextVitals = isEmptyUpdate
+				? { heartRate: null, spO2: null }
+				: {
+					heartRate: update.heartRate !== undefined
+						? update.heartRate
+						: currentVitalsRef.current.heartRate,
+					spO2: update.spO2 !== undefined
+						? update.spO2
+						: update.oxygenSaturation !== undefined
+							? update.oxygenSaturation
+							: currentVitalsRef.current.spO2,
+				};
+
+			currentVitalsRef.current = nextVitals;
+			setVitals(nextVitals);
+
+			const violations = [];
+			const oxygenSaturation = toNumericVital(nextVitals.spO2);
+			const heartRate = toNumericVital(nextVitals.heartRate);
+
+			if (oxygenSaturation !== null && oxygenSaturation < 90) {
+				violations.push({ metric: 'SpO2', value: oxygenSaturation, unit: '%' });
+			}
+
+			if (heartRate !== null && heartRate > 120) {
+				violations.push({ metric: 'HR', value: heartRate, unit: 'bpm' });
+			}
+
+			onAlarmChange?.({
+				isAlarmActive: violations.length > 0,
+				violations,
+			});
 		};
 
 		const unsubscribe = subscribeToVitals(handleVitalsUpdate);

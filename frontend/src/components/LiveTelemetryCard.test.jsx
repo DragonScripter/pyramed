@@ -51,11 +51,24 @@ describe('LiveTelemetryCard', () => {
 	// test case: when patient vital disconnected, the values should reset to null
 	it('resets values to null when the update is an empty object', async () => {
 		const stream = createVitalsStream();
-		render(<LiveTelemetryCard subscribeToVitals={stream.subscribeToVitals} />);
+		const onAlarmChange = vi.fn();
+		render(
+			<LiveTelemetryCard
+				subscribeToVitals={stream.subscribeToVitals}
+				onAlarmChange={onAlarmChange}
+			/>
+		);
 
 		await act(async () => stream.emit({ heartRate: 72, spO2: 98 }));
 		expect(screen.getByText('72')).toBeInTheDocument();
 		expect(screen.getByText('98')).toBeInTheDocument();
+
+		await act(async () => stream.emit({}));
+		expect(screen.getAllByText('--')).toHaveLength(2);
+		expect(onAlarmChange).toHaveBeenLastCalledWith({
+			isAlarmActive: false,
+			violations: [],
+		});
 	});
 
 	it('activates alarms for breached thresholds and clears them when values normalize', async () => {
