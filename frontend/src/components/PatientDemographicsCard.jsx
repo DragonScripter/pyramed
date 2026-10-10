@@ -13,7 +13,7 @@ import {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
-const PatientDemographicsCard = ({ patientId: initialPatientId }) => {
+const PatientDemographicsCard = ({ patientId: initialPatientId, onConnectionChange }) => {
   const [patientId] = useState(initialPatientId);
   const selectedPatientId = initialPatientId ?? patientId;
   const [patientData, setPatientData] = useState(null);
@@ -22,10 +22,12 @@ const PatientDemographicsCard = ({ patientId: initialPatientId }) => {
 
   useEffect(() => {
     if (!selectedPatientId) {
+      onConnectionChange?.(false);
       return undefined;
     }
 
     const controller = new AbortController();
+    onConnectionChange?.(false);
 
     const fetchPatient = async () => {
       setIsLoading(true);
@@ -41,11 +43,14 @@ const PatientDemographicsCard = ({ patientId: initialPatientId }) => {
           throw new Error(`Error: Cannot fetch patient information. (${response.status})`);
         }
 
-        setPatientData(await response.json());
+        const patient = await response.json();
+        setPatientData(patient);
+        onConnectionChange?.(true);
       } catch (requestError) {
         if (requestError.name !== 'AbortError') {
           setPatientData(null);
           setError(requestError.message);
+          onConnectionChange?.(false);
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -57,7 +62,7 @@ const PatientDemographicsCard = ({ patientId: initialPatientId }) => {
     fetchPatient();
 
     return () => controller.abort();
-  }, [selectedPatientId]);
+  }, [selectedPatientId, onConnectionChange]);
 
   if (!selectedPatientId) {
     return (
@@ -117,7 +122,8 @@ const PatientDemographicsCard = ({ patientId: initialPatientId }) => {
 };
 
 PatientDemographicsCard.propTypes = {
-  patientId: PropTypes.string
+  patientId: PropTypes.string,
+  onConnectionChange: PropTypes.func,
 };
 
 export default PatientDemographicsCard;
