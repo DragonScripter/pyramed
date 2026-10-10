@@ -46,6 +46,7 @@ function BedsideChart({ patientId, demoTelemetry }) {
 
       <section className="bedside-chart__telemetry" aria-label="Live bedside telemetry">
         <LiveTelemetryCard
+          key={demoTelemetry ? 'demo' : 'live'}
           subscribeToVitals={demoTelemetry ? subscribeToDemoVitals : undefined}
         />
       </section>
