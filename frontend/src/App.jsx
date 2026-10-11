@@ -13,6 +13,7 @@ const demoVitals = [
   { heartRate: 72, spO2: 89 },
   { heartRate: 121, spO2: 97 },
   { heartRate: 75, oxygenSaturation: 97 },
+  { heartRate: 75, spO2: 97 },
   { heartRate: 71, spO2: 99 },
 ]
 
