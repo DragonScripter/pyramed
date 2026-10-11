@@ -1,3 +1,4 @@
+
 // #Yena: This component is dedicated to displaying the patient's demographic information.
 
 import { useEffect, useState } from 'react';
@@ -13,15 +14,15 @@ import {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
-const PatientDemographicsCard = ({ patientId: initialPatientId }) => {
-  const [patientId] = useState(initialPatientId);
-  const selectedPatientId = initialPatientId ?? patientId;
+
+const PatientDemographicsCard = ({ patientId }) => {
   const [patientData, setPatientData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!selectedPatientId) {
+    
+    if (!patientId) {
       return undefined;
     }
 
@@ -31,11 +32,19 @@ const PatientDemographicsCard = ({ patientId: initialPatientId }) => {
       setIsLoading(true);
       setError(null);
 
+      
+      setPatientData(null);
+
       try {
         const response = await fetch(
-          `${API_BASE_URL}/api/patient/${encodeURIComponent(selectedPatientId)}`,
+          `${API_BASE_URL}/api/patient/${encodeURIComponent(patientId)}`,
           { signal: controller.signal }
         );
+
+       
+        if (response.status === 404) {
+          throw new Error('Patient not found.');
+        }
 
         if (!response.ok) {
           throw new Error(`Error: Cannot fetch patient information. (${response.status})`);
@@ -57,9 +66,10 @@ const PatientDemographicsCard = ({ patientId: initialPatientId }) => {
     fetchPatient();
 
     return () => controller.abort();
-  }, [selectedPatientId]);
+  }, [patientId]); 
 
-  if (!selectedPatientId) {
+  
+  if (!patientId) {
     return (
       <Alert severity="info">
         Select a patient to view bedside information.
