@@ -1,7 +1,11 @@
+
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './Registration.css'
 
 function Registration() {
+  const navigate = useNavigate()
+
   // Stores the values entered in the form
   const [name, setName] = useState('')
   const [age, setAge] = useState('')
@@ -10,26 +14,24 @@ function Registration() {
   const [message, setMessage] = useState('')
 
   const handleSubmit = async (event) => {
-    // Prevents the browser from refreshing when the form is submitted
+    // Prevent the browser from refreshing when the form is submitted
     event.preventDefault()
 
     // VALIDATION 1:
-    // Block submission if the patient's full name is blank.
-    // trim() also prevents a name containing only spaces from being accepted.
+    // Block submission if the patient's full name is blank
     if (name.trim() === '') {
       setMessage('Please enter the patient full name.')
       return
     }
 
     // VALIDATION 2:
-    // Block submission if the patient's age is 0 or a negative number.
-    // Ticket 2 requires age to be greater than 0.
+    // Block submission if the patient's age is 0 or negative
     if (Number(age) <= 0) {
       setMessage('Age must be greater than 0.')
       return
     }
 
-    // Validation passed, so send the patient information to the backend
+    // Validation passed, send patient information to the backend
     try {
       const response = await fetch('http://localhost:5019/api/patient', {
         method: 'POST',
@@ -50,12 +52,15 @@ function Registration() {
       // Get the newly created patient returned by the backend
       const patient = await response.json()
 
-      // Display confirmation to the registration clerk
-      setMessage(`Patient ${patient.name} registered successfully!`)
 
-      // Clear the form after successful registration
-      setName('')
-      setAge('')
+      //  Backend returns patientId instead of id
+if (!patient.patientId) {
+  throw new Error('Backend did not return a patient ID')
+}
+
+//  Navigate using the patientId returned by the backend
+navigate(`/patients/${patient.patientId}`)
+
     } catch (error) {
       console.error(error)
       setMessage('Unable to register patient.')
@@ -85,10 +90,7 @@ function Registration() {
             <input
               id="age"
               type="number"
-
-              // HTML validation also prevents values below 1
               min="1"
-
               value={age}
               onChange={(event) => setAge(event.target.value)}
               required
