@@ -13,15 +13,13 @@ import {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
-const PatientDemographicsCard = ({ patientId: initialPatientId, onConnectionChange }) => {
-  const [patientId] = useState(initialPatientId);
-  const selectedPatientId = initialPatientId ?? patientId;
+const PatientDemographicsCard = ({ patientId, onConnectionChange }) => {
   const [patientData, setPatientData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!selectedPatientId) {
+    if (!patientId) {
       onConnectionChange?.(false);
       return undefined;
     }
@@ -33,11 +31,17 @@ const PatientDemographicsCard = ({ patientId: initialPatientId, onConnectionChan
       setIsLoading(true);
       setError(null);
 
+      setPatientData(null);
+
       try {
         const response = await fetch(
-          `${API_BASE_URL}/api/patient/${encodeURIComponent(selectedPatientId)}`,
+          `${API_BASE_URL}/api/patient/${encodeURIComponent(patientId)}`,
           { signal: controller.signal }
         );
+
+        if (response.status === 404) {
+          throw new Error('Patient not found.');
+        }
 
         if (!response.ok) {
           throw new Error(`Error: Cannot fetch patient information. (${response.status})`);
@@ -62,9 +66,9 @@ const PatientDemographicsCard = ({ patientId: initialPatientId, onConnectionChan
     fetchPatient();
 
     return () => controller.abort();
-  }, [selectedPatientId, onConnectionChange]);
+  }, [patientId, onConnectionChange]);
 
-  if (!selectedPatientId) {
+  if (!patientId) {
     return (
       <Alert severity="info">
         Select a patient to view bedside information.
