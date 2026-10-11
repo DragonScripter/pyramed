@@ -1,4 +1,3 @@
-
 // #Yena: This component is dedicated to displaying the patient's demographic information.
 
 import { useEffect, useState } from 'react';
@@ -14,25 +13,24 @@ import {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
-
-const PatientDemographicsCard = ({ patientId }) => {
+const PatientDemographicsCard = ({ patientId, onConnectionChange }) => {
   const [patientData, setPatientData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    
     if (!patientId) {
+      onConnectionChange?.(false);
       return undefined;
     }
 
     const controller = new AbortController();
+    onConnectionChange?.(false);
 
     const fetchPatient = async () => {
       setIsLoading(true);
       setError(null);
 
-      
       setPatientData(null);
 
       try {
@@ -41,7 +39,6 @@ const PatientDemographicsCard = ({ patientId }) => {
           { signal: controller.signal }
         );
 
-       
         if (response.status === 404) {
           throw new Error('Patient not found.');
         }
@@ -50,11 +47,14 @@ const PatientDemographicsCard = ({ patientId }) => {
           throw new Error(`Error: Cannot fetch patient information. (${response.status})`);
         }
 
-        setPatientData(await response.json());
+        const patient = await response.json();
+        setPatientData(patient);
+        onConnectionChange?.(true);
       } catch (requestError) {
         if (requestError.name !== 'AbortError') {
           setPatientData(null);
           setError(requestError.message);
+          onConnectionChange?.(false);
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -66,9 +66,8 @@ const PatientDemographicsCard = ({ patientId }) => {
     fetchPatient();
 
     return () => controller.abort();
-  }, [patientId]); 
+  }, [patientId, onConnectionChange]);
 
-  
   if (!patientId) {
     return (
       <Alert severity="info">
@@ -127,7 +126,8 @@ const PatientDemographicsCard = ({ patientId }) => {
 };
 
 PatientDemographicsCard.propTypes = {
-  patientId: PropTypes.string
+  patientId: PropTypes.string,
+  onConnectionChange: PropTypes.func,
 };
 
 export default PatientDemographicsCard;

@@ -31,6 +31,7 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
     isAlarmActive: false,
     violations: [],
   })
+  const [isPatientConnected, setIsPatientConnected] = useState(false)
 
   // Read the patient ID from the URL
   const { id } = useParams()
@@ -53,7 +54,9 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
         <span className="bedside-chart__status">
           {demoTelemetry
             ? 'Demo telemetry active'
-            : 'No telemetry connected'}
+            : isPatientConnected
+              ? 'Live telemetry connected'
+              : 'No telemetry connected'}
         </span>
       </header>
 
@@ -61,7 +64,10 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
         className="bedside-chart__patient"
         aria-label="Patient demographics"
       >
-        <PatientDemographicsCard patientId={patientId} />
+        <PatientDemographicsCard
+          patientId={patientId}
+          onConnectionChange={setIsPatientConnected}
+        />
       </section>
 
       <section
@@ -69,6 +75,7 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
         aria-label="Live bedside telemetry"
       >
         <LiveTelemetryCard
+          key={demoTelemetry ? 'demo' : 'live'}
           subscribeToVitals={
             demoTelemetry ? subscribeToDemoVitals : undefined
           }
