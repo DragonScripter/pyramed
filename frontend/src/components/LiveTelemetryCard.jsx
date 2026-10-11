@@ -37,12 +37,13 @@ const LiveTelemetryCard = ({ subscribeToVitals, onAlarmChange }) => {
 			return undefined;
 		}
 
-		const handleVitalsUpdate = (payload) => {
+				const handleVitalsUpdate = (payload) => {
 			const update = payload?.new ?? payload;
 			if (!update || typeof update !== 'object') {
 				return;
 			}
 
+			// An empty update resets both vitals to null; otherwise preserve current values
 			const isEmptyUpdate = Object.keys(update).length === 0;
 			const nextVitals = isEmptyUpdate
 				? { heartRate: null, spO2: null }

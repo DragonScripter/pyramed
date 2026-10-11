@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { Routes, Route, useParams } from 'react-router-dom'
 import CriticalAlarmBanner from './components/CriticalAlarmBanner'
 import HamburgerMenu from './components/HambugerMenu.jsx'
 import LiveTelemetryCard from './components/LiveTelemetryCard'
@@ -17,6 +17,7 @@ const demoVitals = [
 
 const subscribeToDemoVitals = (onUpdate) => {
   let readingIndex = 0
+
   const intervalId = window.setInterval(() => {
     onUpdate(demoVitals[readingIndex])
     readingIndex = (readingIndex + 1) % demoVitals.length
@@ -25,8 +26,18 @@ const subscribeToDemoVitals = (onUpdate) => {
   return () => window.clearInterval(intervalId)
 }
 
-function BedsideChart({ patientId, demoTelemetry = false }) {
-  const [alarmState, setAlarmState] = useState({ isAlarmActive: false, violations: [] })
+function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
+  const [alarmState, setAlarmState] = useState({
+    isAlarmActive: false,
+    violations: [],
+  })
+  const [isPatientConnected, setIsPatientConnected] = useState(false)
+
+  // Read the patient ID from the URL
+  const { id } = useParams()
+
+  // Use the URL ID, or fall back to the default patient ID
+  const patientId = id ?? defaultPatientId
 
   return (
     <main className="bedside-chart">
@@ -39,18 +50,35 @@ function BedsideChart({ patientId, demoTelemetry = false }) {
           <p className="bedside-chart__eyebrow">Clinical monitoring</p>
           <h1>Bedside Chart</h1>
         </div>
+
         <span className="bedside-chart__status">
-          {demoTelemetry ? 'Demo telemetry active' : 'No telemetry connected'}
+          {demoTelemetry
+            ? 'Demo telemetry active'
+            : isPatientConnected
+              ? 'Live telemetry connected'
+              : 'No telemetry connected'}
         </span>
       </header>
 
-      <section className="bedside-chart__patient" aria-label="Patient demographics">
-        <PatientDemographicsCard patientId={patientId} />
+      <section
+        className="bedside-chart__patient"
+        aria-label="Patient demographics"
+      >
+        <PatientDemographicsCard
+          patientId={patientId}
+          onConnectionChange={setIsPatientConnected}
+        />
       </section>
 
-      <section className="bedside-chart__telemetry" aria-label="Live bedside telemetry">
+      <section
+        className="bedside-chart__telemetry"
+        aria-label="Live bedside telemetry"
+      >
         <LiveTelemetryCard
-          subscribeToVitals={demoTelemetry ? subscribeToDemoVitals : undefined}
+          key={demoTelemetry ? 'demo' : 'live'}
+          subscribeToVitals={
+            demoTelemetry ? subscribeToDemoVitals : undefined
+          }
           onAlarmChange={setAlarmState}
         />
       </section>
@@ -59,6 +87,7 @@ function BedsideChart({ patientId, demoTelemetry = false }) {
 }
 
 function App() {
+  // Default patient ID from query string or environment variable
   const [patientId] = useState(
     () =>
       new URLSearchParams(window.location.search).get('patientId') ??
@@ -69,13 +98,36 @@ function App() {
   return (
     <>
       <HamburgerMenu patientId={patientId} />
+
       <Routes>
-        <Route path="/" element={<BedsideChart patientId={patientId} />} />
-        <Route path="/registration" element={<Registration />} />
-        <Route path="*" element={<p>Page not found</p>} />
+        <Route
+          path="/"
+          element={<BedsideChart defaultPatientId={patientId} />}
+        />
+
+        <Route
+          path="/patients/:id"
+          element={<BedsideChart defaultPatientId={patientId} />}
+        />
+
+        <Route
+          path="/registration"
+          element={<Registration />}
+        />
+
         <Route
           path="/demo-telemetry"
-          element={<BedsideChart patientId={patientId} demoTelemetry />}
+          element={
+            <BedsideChart
+              defaultPatientId={patientId}
+              demoTelemetry={true}
+            />
+          }
+        />
+
+        <Route
+          path="*"
+          element={<p>Page not found</p>}
         />
       </Routes>
     </>
