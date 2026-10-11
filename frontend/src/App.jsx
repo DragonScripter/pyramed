@@ -1,13 +1,16 @@
 import { useState } from 'react'
 import { Routes, Route, useParams } from 'react-router-dom'
+import CriticalAlarmBanner from './components/CriticalAlarmBanner'
+import HamburgerMenu from './components/HambugerMenu.jsx'
 import LiveTelemetryCard from './components/LiveTelemetryCard'
 import PatientDemographicsCard from './components/PatientDemographicsCard'
 import Registration from './components/Registration'
-import HamburgerMenu from './components/HambugerMenu.jsx'
 import './App.css'
 
 const demoVitals = [
   { heartRate: 72, spO2: 98 },
+  { heartRate: 72, spO2: 89 },
+  { heartRate: 121, spO2: 97 },
   { heartRate: 75, spO2: 97 },
   { heartRate: 71, spO2: 99 },
 ]
@@ -18,12 +21,16 @@ const subscribeToDemoVitals = (onUpdate) => {
   const intervalId = window.setInterval(() => {
     onUpdate(demoVitals[readingIndex])
     readingIndex = (readingIndex + 1) % demoVitals.length
-  }, 1200)
+  }, 2500)
 
   return () => window.clearInterval(intervalId)
 }
 
 function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
+  const [alarmState, setAlarmState] = useState({
+    isAlarmActive: false,
+    violations: [],
+  })
   const [isPatientConnected, setIsPatientConnected] = useState(false)
 
   // Read the patient ID from the URL
@@ -34,6 +41,10 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
 
   return (
     <main className="bedside-chart">
+      <CriticalAlarmBanner
+        active={alarmState.isAlarmActive}
+        violations={alarmState.violations}
+      />
       <header className="bedside-chart__header">
         <div>
           <p className="bedside-chart__eyebrow">Clinical monitoring</p>
@@ -68,6 +79,7 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
           subscribeToVitals={
             demoTelemetry ? subscribeToDemoVitals : undefined
           }
+          onAlarmChange={setAlarmState}
         />
       </section>
     </main>
