@@ -5,6 +5,7 @@ import HamburgerMenu from './components/HambugerMenu.jsx'
 import LiveTelemetryCard from './components/LiveTelemetryCard'
 import PatientDemographicsCard from './components/PatientDemographicsCard'
 import Registration from './components/Registration'
+import PatientList from './components/PatientList'
 import './App.css'
 
 const demoVitals = [
@@ -104,7 +105,10 @@ function App() {
           path="/"
           element={<BedsideChart defaultPatientId={patientId} />}
         />
-
+        <Route
+          path="/patients"
+          element={<PatientList />}
+        />
         <Route
           path="/patients/:id"
           element={<BedsideChart defaultPatientId={patientId} />}
