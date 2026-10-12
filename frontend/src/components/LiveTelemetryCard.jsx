@@ -37,7 +37,7 @@ const LiveTelemetryCard = ({ subscribeToVitals, onAlarmChange }) => {
 			return undefined;
 		}
 
-		const handleVitalsUpdate = (payload) => {
+				const handleVitalsUpdate = (payload) => {
 			const update = payload?.new ?? payload;
 			if (!update || typeof update !== 'object') {
 				return;

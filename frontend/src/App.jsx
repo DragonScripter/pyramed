@@ -5,12 +5,14 @@ import HamburgerMenu from './components/HambugerMenu.jsx'
 import LiveTelemetryCard from './components/LiveTelemetryCard'
 import PatientDemographicsCard from './components/PatientDemographicsCard'
 import Registration from './components/Registration'
+import PatientList from './components/PatientList'
 import './App.css'
 
 const demoVitals = [
   { heartRate: 72, spO2: 98 },
   { heartRate: 72, spO2: 89 },
   { heartRate: 121, spO2: 97 },
+  { heartRate: 75, oxygenSaturation: 97 },
   { heartRate: 75, spO2: 97 },
   { heartRate: 71, spO2: 99 },
 ]
@@ -104,7 +106,10 @@ function App() {
           path="/"
           element={<BedsideChart defaultPatientId={patientId} />}
         />
-
+        <Route
+          path="/patients"
+          element={<PatientList />}
+        />
         <Route
           path="/patients/:id"
           element={<BedsideChart defaultPatientId={patientId} />}

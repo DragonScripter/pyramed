@@ -36,6 +36,11 @@ function HamburgerMenu({ patientId }) {
               Live Bedside Chart
             </Link>
           </li>
+          <li>
+            <Link to="/patients" onClick={close}>
+              Patient List
+            </Link>
+          </li>
 
           {/* NEW: Show Patient Info only when a patient ID exists */}
           {currentPatientId && (
