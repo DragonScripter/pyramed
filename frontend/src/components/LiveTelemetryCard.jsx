@@ -50,12 +50,16 @@ const LiveTelemetryCard = ({ subscribeToVitals, onAlarmChange }) => {
 				: {
 					heartRate: update.heartRate !== undefined
 						? update.heartRate
-						: currentVitalsRef.current.heartRate,
+						: update.heart_rate !== undefined
+							? update.heart_rate
+							: currentVitalsRef.current.heartRate,
 					spO2: update.spO2 !== undefined
 						? update.spO2
 						: update.oxygenSaturation !== undefined
 							? update.oxygenSaturation
-							: currentVitalsRef.current.spO2,
+							: update.spo2 !== undefined
+								? update.spo2
+								: currentVitalsRef.current.spO2,
 				};
 
 			currentVitalsRef.current = nextVitals;
