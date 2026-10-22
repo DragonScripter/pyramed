@@ -20,6 +20,13 @@ public class PatientController : ControllerBase
         public int Age { get; set; }
     }
 
+       public class UpdatePatientRequest
+    {
+        public string? Name { get; set; }
+        public int? Age { get; set; }
+        public string? Status { get; set; }
+    }
+
     [HttpPost]
     public async Task<IActionResult> CreatePatient(
         [FromBody] CreatePatientRequest request)
@@ -125,5 +132,76 @@ public class PatientController : ControllerBase
         {
             return StatusCode(500, new { message = "An error occurred while retrieving the patient.", error = ex.Message });
         }
+    }
+      // User Story 17: Update an existing patient's information
+    [HttpPut("{id}")]
+    public IActionResult UpdatePatient(
+        [FromRoute] string id,
+        [FromBody] UpdatePatientRequest? request)
+    {
+    // Validate patient ID
+    if (!Guid.TryParse(id, out var patientId) ||
+        patientId == Guid.Empty)
+    {
+        return BadRequest(new
+        {
+            message = "Invalid patient ID."
+        });
+    }
+
+    // Validate request body
+    if (request == null)
+    {
+        return BadRequest(new
+        {
+            message = "Patient update data is required."
+        });
+    }
+
+    // Validate name if supplied
+    if (request.Name != null &&
+        string.IsNullOrWhiteSpace(request.Name))
+    {
+        return BadRequest(new
+        {
+            message = "Patient name cannot be empty."
+        });
+    }
+
+    // Validate age if supplied
+    if (request.Age.HasValue && request.Age.Value < 0)
+    {
+        return BadRequest(new
+        {
+            message = "Patient age cannot be negative."
+        });
+    }
+
+           // Validate status if supplied
+        if (request.Status != null &&
+            string.IsNullOrWhiteSpace(request.Status))
+        {
+            return BadRequest(new
+            {
+                message = "Patient status cannot be empty."
+            });
+        }
+
+    // Ensure at least one field is supplied
+    if (request.Name == null &&
+        request.Age == null &&
+        request.Status == null)
+    {
+        return BadRequest(new
+        {
+            message = "At least one field must be provided."
+        });
+    }
+
+            // TODO: Jude will integrate the Supabase update.
+        return StatusCode(501, new
+        {
+            message = "Patient update database integration is pending."
+        });
     }
 }
