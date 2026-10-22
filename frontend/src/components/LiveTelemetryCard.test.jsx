@@ -72,6 +72,23 @@ describe('LiveTelemetryCard', () => {
 			],
 		});
 	});
+
+	it('processes a vital payload passed directly by the patient hook', async () => {
+		const onAlarmChange = vi.fn();
+		render(
+			<LiveTelemetryCard
+				vitalUpdate={{ new: { heart_rate: 121, spo2: 97 } }}
+				onAlarmChange={onAlarmChange}
+			/>
+		);
+
+		expect(screen.getByText('121')).toBeInTheDocument();
+		expect(screen.getByText('97')).toBeInTheDocument();
+		expect(onAlarmChange).toHaveBeenLastCalledWith({
+			isAlarmActive: true,
+			violations: [{ metric: 'HR', value: 121, unit: 'bpm' }],
+		});
+	});
 	
 	// test case: when patient vital disconnected, the values should reset to null
 	it('resets values to null when the update is an empty object', async () => {

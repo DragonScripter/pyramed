@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 import { Routes, Route, useParams } from 'react-router-dom'
 import CriticalAlarmBanner from './components/CriticalAlarmBanner'
 import HamburgerMenu from './components/HambugerMenu.jsx'
@@ -6,7 +6,7 @@ import LiveTelemetryCard from './components/LiveTelemetryCard'
 import PatientDemographicsCard from './components/PatientDemographicsCard'
 import Registration from './components/Registration'
 import PatientList from './components/PatientList'
-import { supabase } from './supabaseClient'
+import usePatientVitals from './hooks/usePatientVitals'
 import './App.css'
 
 const demoVitals = [
@@ -41,33 +41,7 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
 
   // Use the URL ID, or fall back to the default patient ID
   const patientId = id ?? defaultPatientId
-  const subscribeToPatientVitals = useCallback((onUpdate) => {
-    if (!patientId) {
-      return undefined
-    }
-
-    const channel = supabase
-      .channel(`vitals-${patientId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'vitals',
-          filter: `patient_id=eq.${patientId}`,
-        },
-        onUpdate
-      )
-      .subscribe((status, error) => {
-        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-          console.error('Supabase vitals subscription failed:', error ?? status)
-        }
-      })
-
-    return () => {
-      void supabase.removeChannel(channel)
-    }
-  }, [patientId])
+  const latestPatientVital = usePatientVitals(demoTelemetry ? null : patientId)
 
   return (
     <main className="bedside-chart">
@@ -105,10 +79,9 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
         aria-label="Live bedside telemetry"
       >
         <LiveTelemetryCard
-          key={demoTelemetry ? 'demo' : 'live'}
-          subscribeToVitals={
-            demoTelemetry ? subscribeToDemoVitals : subscribeToPatientVitals
-          }
+          key={demoTelemetry ? 'demo' : `live-${patientId}`}
+          subscribeToVitals={demoTelemetry ? subscribeToDemoVitals : undefined}
+          vitalUpdate={demoTelemetry ? undefined : latestPatientVital}
           onAlarmChange={setAlarmState}
         />
       </section>
