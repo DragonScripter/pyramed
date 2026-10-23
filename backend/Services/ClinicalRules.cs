@@ -37,45 +37,12 @@ public sealed class ClinicalRules
             .Range(0, RecentVitalLimit - 1)
             .Get();
 
-        // The database query is descending so it can select the latest records.
-        // Sort chronologically before reporting the observation window.
-        var vitals = response.Models
-            .OrderBy(vital => vital.RecordedAt)
-            .ToList();
+        var summary = VitalsSummaryBuilder.Build(patientId, response.Models);
 
-        if (vitals.Count == 0)
+        if (summary.RecordCount == 0)
         {
-            return VitalsSummaryResponse.Empty(patientId);
+            return summary;
         }
-
-        var averageHeartRate = Math.Round(
-            vitals.Average(vital => vital.HeartRate),
-            1);
-        var averageSpO2 = Math.Round(
-            vitals.Average(vital => vital.SpO2),
-            1);
-
-        var summary = new VitalsSummaryResponse(
-            PatientId: patientId,
-            RecordCount: vitals.Count,
-            ObservationStartedAt: vitals.First().RecordedAt,
-            ObservationEndedAt: vitals.Last().RecordedAt,
-            AverageHeartRate: averageHeartRate,
-            AverageSpO2: averageSpO2,
-            HeartRate: VitalMetricExtremaResponse.From(
-                vitals,
-                vital => vital.HeartRate),
-            SpO2: VitalMetricExtremaResponse.From(
-                vitals,
-                vital => vital.SpO2),
-            ClinicalBrief: VitalsSummaryResponse.CreateClinicalBrief(
-                vitals.Count,
-                averageHeartRate,
-                averageSpO2,
-                vitals.Min(vital => vital.HeartRate),
-                vitals.Max(vital => vital.HeartRate),
-                vitals.Min(vital => vital.SpO2),
-                vitals.Max(vital => vital.SpO2)));
 
         var aiBrief = await _clinicalSummaryGenerator.GenerateAsync(
             summary,
