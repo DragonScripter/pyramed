@@ -31,6 +31,8 @@ dist-ssr
 
 backend/bin/
 backend/obj/
+backend.Tests/bin/
+backend.Tests/obj/
 
 # local development secret file
 backend/appsettings.Development.json

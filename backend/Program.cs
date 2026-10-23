@@ -1,5 +1,6 @@
 
 using backend.BackgroundWorkers;
+using backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,12 @@ builder.Services.AddScoped(provider =>
             AutoRefreshToken = true,
             AutoConnectRealtime = true
         }));
+
+builder.Services.AddScoped<ClinicalRules>();
+builder.Services.AddHttpClient<IClinicalSummaryGenerator, OpenAiClinicalSummaryGenerator>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(5);
+});
 
 builder.Services.AddControllers();
 
