@@ -22,7 +22,7 @@ public sealed class ClinicalRules
     /// Retrieves the most recent 100 records for a patient and calculates their
     /// averages and per-metric recorded extrema.
     /// </summary>
-    public async Task<VitalsSummary> GetVitalsSummaryAsync(Guid patientId)
+    public async Task<VitalsSummaryResponse> GetVitalsSummaryAsync(Guid patientId)
     {
         var response = await _supabase
             .From<VitalRecord>()
@@ -39,70 +39,36 @@ public sealed class ClinicalRules
 
         if (vitals.Count == 0)
         {
-            return VitalsSummary.Empty(patientId);
+            return VitalsSummaryResponse.Empty(patientId);
         }
 
-        return new VitalsSummary(
+        var averageHeartRate = Math.Round(
+            vitals.Average(vital => vital.HeartRate),
+            1);
+        var averageSpO2 = Math.Round(
+            vitals.Average(vital => vital.SpO2),
+            1);
+
+        return new VitalsSummaryResponse(
             PatientId: patientId,
             RecordCount: vitals.Count,
             ObservationStartedAt: vitals.First().RecordedAt,
             ObservationEndedAt: vitals.Last().RecordedAt,
-            AverageHeartRate: Math.Round(vitals.Average(vital => vital.HeartRate), 1),
-            AverageSpO2: Math.Round(vitals.Average(vital => vital.SpO2), 1),
-            HeartRate: VitalMetricExtrema.From(
+            AverageHeartRate: averageHeartRate,
+            AverageSpO2: averageSpO2,
+            HeartRate: VitalMetricExtremaResponse.From(
                 vitals,
                 vital => vital.HeartRate),
-            SpO2: VitalMetricExtrema.From(
+            SpO2: VitalMetricExtremaResponse.From(
                 vitals,
-                vital => vital.SpO2));
+                vital => vital.SpO2),
+            ClinicalBrief: VitalsSummaryResponse.CreateClinicalBrief(
+                vitals.Count,
+                averageHeartRate,
+                averageSpO2,
+                vitals.Min(vital => vital.HeartRate),
+                vitals.Max(vital => vital.HeartRate),
+                vitals.Min(vital => vital.SpO2),
+                vitals.Max(vital => vital.SpO2)));
     }
 }
-
-public sealed record VitalsSummary(
-    Guid PatientId,
-    int RecordCount,
-    DateTime? ObservationStartedAt,
-    DateTime? ObservationEndedAt,
-    double? AverageHeartRate,
-    double? AverageSpO2,
-    VitalMetricExtrema? HeartRate,
-    VitalMetricExtrema? SpO2)
-{
-    public static VitalsSummary Empty(Guid patientId) => new(
-        PatientId: patientId,
-        RecordCount: 0,
-        ObservationStartedAt: null,
-        ObservationEndedAt: null,
-        AverageHeartRate: null,
-        AverageSpO2: null,
-        HeartRate: null,
-        SpO2: null);
-}
-
-/// <summary>
-/// The lowest and highest observed values for one vital metric. These values are
-/// descriptive extrema, not clinical anomaly classifications.
-/// </summary>
-public sealed record VitalMetricExtrema(
-    VitalMeasurement LowestRecorded,
-    VitalMeasurement HighestRecorded)
-{
-    public static VitalMetricExtrema From(
-        IEnumerable<VitalRecord> vitals,
-        Func<VitalRecord, int> selector)
-    {
-        var ordered = vitals
-            .OrderBy(selector)
-            .ThenBy(vital => vital.RecordedAt)
-            .ToList();
-
-        var lowest = ordered.First();
-        var highest = ordered.Last();
-
-        return new VitalMetricExtrema(
-            LowestRecorded: new VitalMeasurement(selector(lowest), lowest.RecordedAt),
-            HighestRecorded: new VitalMeasurement(selector(highest), highest.RecordedAt));
-    }
-}
-
-public sealed record VitalMeasurement(int Value, DateTime RecordedAt);
