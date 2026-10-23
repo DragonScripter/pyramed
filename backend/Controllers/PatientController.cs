@@ -114,7 +114,9 @@ public class PatientController : ControllerBase
 
         try
         {
-            var summary = await _clinicalRules.GetVitalsSummaryAsync(id);
+            var summary = await _clinicalRules.GetVitalsSummaryAsync(
+                id,
+                HttpContext.RequestAborted);
             return Ok(summary);
         }
         catch (Exception)

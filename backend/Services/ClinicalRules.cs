@@ -12,17 +12,23 @@ public sealed class ClinicalRules
     private const int RecentVitalLimit = 100;
 
     private readonly Supabase.Client _supabase;
+    private readonly IClinicalSummaryGenerator _clinicalSummaryGenerator;
 
-    public ClinicalRules(Supabase.Client supabase)
+    public ClinicalRules(
+        Supabase.Client supabase,
+        IClinicalSummaryGenerator clinicalSummaryGenerator)
     {
         _supabase = supabase;
+        _clinicalSummaryGenerator = clinicalSummaryGenerator;
     }
 
     /// <summary>
     /// Retrieves the most recent 100 records for a patient and calculates their
     /// averages and per-metric recorded extrema.
     /// </summary>
-    public async Task<VitalsSummaryResponse> GetVitalsSummaryAsync(Guid patientId)
+    public async Task<VitalsSummaryResponse> GetVitalsSummaryAsync(
+        Guid patientId,
+        CancellationToken cancellationToken = default)
     {
         var response = await _supabase
             .From<VitalRecord>()
@@ -49,7 +55,7 @@ public sealed class ClinicalRules
             vitals.Average(vital => vital.SpO2),
             1);
 
-        return new VitalsSummaryResponse(
+        var summary = new VitalsSummaryResponse(
             PatientId: patientId,
             RecordCount: vitals.Count,
             ObservationStartedAt: vitals.First().RecordedAt,
@@ -70,5 +76,13 @@ public sealed class ClinicalRules
                 vitals.Max(vital => vital.HeartRate),
                 vitals.Min(vital => vital.SpO2),
                 vitals.Max(vital => vital.SpO2)));
+
+        var aiBrief = await _clinicalSummaryGenerator.GenerateAsync(
+            summary,
+            cancellationToken);
+
+        return string.IsNullOrWhiteSpace(aiBrief)
+            ? summary
+            : summary with { ClinicalBrief = aiBrief };
     }
 }
