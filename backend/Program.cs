@@ -22,6 +22,8 @@ builder.Services.AddControllers();
 
 // Ticket 13: C# Asynchronous Patient Monitoring Engine
 builder.Services.AddHostedService<VitalSimulator>();
+//Ticket10
+builder.Services.AddSingleton<backend.Services.CdsValidationEngine>();
 
 // Configure CORS for React
 builder.Services.AddCors(options =>
