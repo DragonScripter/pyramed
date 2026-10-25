@@ -135,7 +135,7 @@ public class PatientController : ControllerBase
     }
       // User Story 17: Update an existing patient's information
     [HttpPut("{id}")]
-    public IActionResult UpdatePatient(
+    public async Task<IActionResult> UpdatePatient(
         [FromRoute] string id,
         [FromBody] UpdatePatientRequest? request)
     {
@@ -198,10 +198,55 @@ public class PatientController : ControllerBase
         });
     }
 
-            // TODO: Jude will integrate the Supabase update.
-        return StatusCode(501, new
+    try
+    {
+        // Locate the existing record
+        var existingResponse = await _supabase
+            .From<Patient>()
+            .Where(x => x.PatientId == patientId)
+            .Get();
+
+        var patient = existingResponse.Models.FirstOrDefault();
+
+        if (patient == null)
         {
-            message = "Patient update database integration is pending."
+            return NotFound(new { message = "Patient not found." });
+        }
+
+        // Apply only the fields that were supplied
+        if (request.Name != null)
+            patient.Name = request.Name.Trim();
+
+        if (request.Age.HasValue)
+            patient.Age = request.Age.Value;
+
+        if (request.Status != null)
+            patient.Status = request.Status.Trim();
+
+        // Write the changes back
+        var updateResponse = await _supabase
+            .From<Patient>()
+            .Where(x => x.PatientId == patientId)
+            .Update(patient);
+
+        var updated = updateResponse.Models.FirstOrDefault() ?? patient;
+
+        return Ok(new
+        {
+            patientId = updated.PatientId,
+            name = updated.Name,
+            age = updated.Age,
+            status = updated.Status,
+            createdAt = updated.CreatedAt
         });
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, new
+        {
+            message = "An error occurred while updating the patient.",
+            error = ex.Message
+        });
+    }
     }
 }
