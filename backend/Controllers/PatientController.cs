@@ -35,12 +35,19 @@ public class PatientController : ControllerBase
             .From<Patient>()
             .Insert(patient);
 
-        var createdPatient = response.Models.FirstOrDefault();
+        var inserted = response.Models.FirstOrDefault();
 
-        if (createdPatient == null)
+        if (inserted == null)
         {
             return StatusCode(500, "Patient could not be created.");
         }
+        var fresh = await _supabase
+            .From<Patient>()
+            .Where(x => x.PatientId == inserted.PatientId)
+            .Get();
+        
+
+        var createdPatient = fresh.Models.FirstOrDefault() ?? inserted;
 
         return Ok(new
         {
