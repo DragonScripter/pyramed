@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Routes, Route, useParams } from 'react-router-dom'
 import CriticalAlarmBanner from './components/CriticalAlarmBanner'
+import CdsInsightsSidebar from './components/CdsInsightsSidebar'
 import HamburgerMenu from './components/HambugerMenu.jsx'
 import LiveTelemetryCard from './components/LiveTelemetryCard'
 import PatientDemographicsCard from './components/PatientDemographicsCard'
@@ -72,18 +73,22 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
         />
       </section>
 
-      <section
-        className="bedside-chart__telemetry"
-        aria-label="Live bedside telemetry"
-      >
-        <LiveTelemetryCard
-          key={demoTelemetry ? 'demo' : 'live'}
-          subscribeToVitals={
-            demoTelemetry ? subscribeToDemoVitals : undefined
-          }
-          onAlarmChange={setAlarmState}
-        />
-      </section>
+    <div className="bedside-chart__layout">
+  <section
+    className="bedside-chart__telemetry"
+    aria-label="Live bedside telemetry"
+  >
+    <LiveTelemetryCard
+      key={demoTelemetry ? 'demo' : 'live'}
+      subscribeToVitals={
+        demoTelemetry ? subscribeToDemoVitals : undefined
+      }
+      onAlarmChange={setAlarmState}
+    />
+  </section>
+
+  <CdsInsightsSidebar evaluation={null} />
+</div>
     </main>
   )
 }
