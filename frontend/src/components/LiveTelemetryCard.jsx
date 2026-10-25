@@ -28,9 +28,59 @@ const TelemetryPanel = ({ label, value, unit, tone }) => (
 	</div>
 );
 
+
+const VitalTrend = ({ label, readings, field, color }) => {
+    const values = readings
+        .map((reading) => toNumericVital(reading[field]))
+        .filter((value) => value !== null)
+        .slice(-20);
+
+    if (values.length < 2) {
+        return (
+            <Typography variant="body2" color="text.secondary">
+                Waiting for more {label.toLowerCase()} readings...
+            </Typography>
+        );
+    }
+
+    const minimum = Math.min(...values) - 5;
+    const maximum = Math.max(...values) + 5;
+    const range = maximum - minimum;
+
+    const points = values
+        .map((value, index) => {
+            const x = (index / (values.length - 1)) * 300;
+            const y = 90 - ((value - minimum) / range) * 80;
+            return `${x},${y}`;
+        })
+        .join(' ');
+
+    return (
+        <div>
+            <Typography variant="subtitle2">{label} trend</Typography>
+            <svg
+                viewBox="0 0 300 100"
+                role="img"
+                aria-label={`${label} trend chart`}
+                style={{ width: '100%', height: 100 }}
+            >
+                <polyline
+                    points={points}
+                    fill="none"
+                    stroke={color}
+                    strokeWidth="3"
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                />
+            </svg>
+        </div>
+    );
+};
+
 const LiveTelemetryCard = ({ subscribeToVitals, onAlarmChange }) => {
 	const currentVitalsRef = useRef({ heartRate: null, spO2: null });
 	const [vitals, setVitals] = useState({ heartRate: null, spO2: null });
+	const [vitalsData, setVitalsData] = useState([]);
 
 	useEffect(() => {
 		if (!subscribeToVitals) {
@@ -48,18 +98,29 @@ const LiveTelemetryCard = ({ subscribeToVitals, onAlarmChange }) => {
 			const nextVitals = isEmptyUpdate
 				? { heartRate: null, spO2: null }
 				: {
-					heartRate: update.heartRate !== undefined
-						? update.heartRate
-						: currentVitalsRef.current.heartRate,
-					spO2: update.spO2 !== undefined
-						? update.spO2
-						: update.oxygenSaturation !== undefined
-							? update.oxygenSaturation
-							: currentVitalsRef.current.spO2,
-				};
+						heartRate: update.heart_rate
+				?? update.heartRate
+				?? currentVitalsRef.current.heartRate,
+
+			spO2: update.spo2
+				?? update.spO2
+				?? update.oxygenSaturation
+				?? currentVitalsRef.current.spO2,
+							};
 
 			currentVitalsRef.current = nextVitals;
 			setVitals(nextVitals);
+
+			if (!isEmptyUpdate) {
+    setVitalsData((previousData) => [
+        ...previousData,
+        {
+            heartRate: nextVitals.heartRate,
+            spO2: nextVitals.spO2,
+            recordedAt: update.recorded_at ?? new Date().toISOString(),
+        },
+    ]);
+}
 
 			const violations = [];
 			const oxygenSaturation = toNumericVital(nextVitals.spO2);
@@ -92,6 +153,9 @@ const LiveTelemetryCard = ({ subscribeToVitals, onAlarmChange }) => {
 				<Typography variant="h5" component="h2" gutterBottom>
 					Current vitals
 				</Typography>
+				<Typography variant="body2" color="text.secondary">
+                    Telemetry readings received: {vitalsData.length}
+                </Typography>
 				<div className="telemetry-grid">
 					<TelemetryPanel
 						label="Heart rate"
@@ -105,22 +169,52 @@ const LiveTelemetryCard = ({ subscribeToVitals, onAlarmChange }) => {
 						unit="SpO2%"
 						tone="oxygen-saturation"
 					/>
+
+				<div className="telemetry-trends">
+					<VitalTrend
+						label="Heart rate"
+						readings={vitalsData}
+						field="heartRate"
+						color="#d32f2f"
+					/>
+					<VitalTrend
+						label="Oxygen saturation"
+						readings={vitalsData}
+						field="spO2"
+						color="#1976d2"
+					/>
 				</div>
-			</CardContent>
-		</Card>
-	);
-};
 
-LiveTelemetryCard.propTypes = {
-	subscribeToVitals: PropTypes.func,
-	onAlarmChange: PropTypes.func,
-};
+								</div>
+							</CardContent>
+						</Card>
+					);
+				};
 
-TelemetryPanel.propTypes = {
-	label: PropTypes.string.isRequired,
-	value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
-	unit: PropTypes.string.isRequired,
-	tone: PropTypes.string.isRequired,
-};
+				LiveTelemetryCard.propTypes = {
+					subscribeToVitals: PropTypes.func,
+					onAlarmChange: PropTypes.func,
+				};
+
+				TelemetryPanel.propTypes = {
+					label: PropTypes.string.isRequired,
+					value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+					unit: PropTypes.string.isRequired,
+					tone: PropTypes.string.isRequired,
+				};
+
+
+				VitalTrend.propTypes = {
+					label: PropTypes.string.isRequired,
+					readings: PropTypes.arrayOf(
+						PropTypes.shape({
+							heartRate: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+							spO2: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+						})
+					).isRequired,
+					field: PropTypes.oneOf(['heartRate', 'spO2']).isRequired,
+					color: PropTypes.string.isRequired,
+				};
+
 
 export default LiveTelemetryCard;

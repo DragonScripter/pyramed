@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
+import { subscribeToPatientVitals } from './subscribeToPatientVitals'
 import { Routes, Route, useParams } from 'react-router-dom'
 import CriticalAlarmBanner from './components/CriticalAlarmBanner'
 import HamburgerMenu from './components/HambugerMenu.jsx'
@@ -7,6 +8,7 @@ import PatientDemographicsCard from './components/PatientDemographicsCard'
 import Registration from './components/Registration'
 import PatientList from './components/PatientList'
 import './App.css'
+
 
 const demoVitals = [
   { heartRate: 72, spO2: 98 },
@@ -40,6 +42,12 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
 
   // Use the URL ID, or fall back to the default patient ID
   const patientId = id ?? defaultPatientId
+
+
+  const subscribeToLiveVitals = useCallback(
+  (onUpdate) => subscribeToPatientVitals(patientId, onUpdate),
+  [patientId]
+)
 
   return (
     <main className="bedside-chart">
@@ -76,13 +84,13 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
         className="bedside-chart__telemetry"
         aria-label="Live bedside telemetry"
       >
-        <LiveTelemetryCard
-          key={demoTelemetry ? 'demo' : 'live'}
-          subscribeToVitals={
-            demoTelemetry ? subscribeToDemoVitals : undefined
-          }
-          onAlarmChange={setAlarmState}
-        />
+       <LiveTelemetryCard
+  key={demoTelemetry ? 'demo' : `live-${patientId}`}
+  subscribeToVitals={
+    demoTelemetry ? subscribeToDemoVitals : subscribeToLiveVitals
+  }
+  onAlarmChange={setAlarmState}
+/>
       </section>
     </main>
   )
