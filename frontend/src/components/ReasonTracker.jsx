@@ -3,47 +3,72 @@ import { Card, CardContent, Chip, Stack, Typography } from '@mui/material';
 import { formatAlertReason } from './alertEvidence';
 import './ReasonTracker.css';
 
-const severityColor = (severity) => severity === 'warning' ? 'warning' : 'error';
-const severityLabel = (severity) =>
-  `${severity?.charAt(0).toUpperCase() ?? 'C'}${severity?.slice(1) ?? 'ritical'}`;
+const severityDetails = {
+  warning: { color: 'warning', label: 'Warning' },
+  critical: { color: 'error', label: 'Critical' },
+};
 
-const ReasonTracker = ({ active = false, violations = [] }) => (
-  <Card
-    component="section"
-    className={`reason-tracker${active ? ' reason-tracker--active' : ''}`}
-    aria-labelledby="reason-tracker-title"
-  >
-    <CardContent>
-      <Typography variant="overline" color="text.secondary">
-        Alert evidence
-      </Typography>
-      <Typography id="reason-tracker-title" variant="h5" component="h2">
-        Reason tracker
-      </Typography>
+const getSeverityDetails = (severity) =>
+  severityDetails[severity] ?? severityDetails.critical;
 
-      {!active ? (
-        <Typography className="reason-tracker__empty" role="status">
-          No active alert reasons.
+const ReasonTracker = ({ active = false, violations = [] }) => {
+  const hasCriticalReason = violations.some(
+    (violation) => getSeverityDetails(violation.severity).label === 'Critical',
+  );
+  const trackerSeverity = hasCriticalReason ? 'critical' : 'warning';
+  const activeReasonCount = violations.length;
+
+  return (
+    <Card
+      component="section"
+      className={`reason-tracker${active ? ` reason-tracker--${trackerSeverity}` : ''}`}
+      aria-labelledby="reason-tracker-title"
+    >
+      <CardContent>
+        <Typography variant="overline" color="text.secondary">
+          Alert evidence
         </Typography>
-      ) : (
-        <Stack component="ul" className="reason-tracker__list" spacing={1}>
-          {violations.map((violation) => (
-            <li key={violation.metric} className="reason-tracker__item">
-              <Chip
-                label={severityLabel(violation.severity)}
-                color={severityColor(violation.severity)}
-                size="small"
-              />
-              <Typography component="span" className="reason-tracker__reason">
-                {formatAlertReason(violation)}
-              </Typography>
-            </li>
-          ))}
-        </Stack>
-      )}
-    </CardContent>
-  </Card>
-);
+        <Typography id="reason-tracker-title" variant="h5" component="h2">
+          Reason tracker
+        </Typography>
+
+        {!active ? (
+          <Typography className="reason-tracker__empty" role="status" aria-live="polite">
+            No active alert reasons.
+          </Typography>
+        ) : (
+          <>
+            <Typography className="reason-tracker__status" role="status" aria-live="polite" aria-atomic="true">
+              Active {trackerSeverity} alert evidence: {activeReasonCount} {activeReasonCount === 1 ? 'reason' : 'reasons'} require review.
+            </Typography>
+            <Stack component="ul" className="reason-tracker__list" spacing={1}>
+              {violations.map((violation) => {
+                const severity = getSeverityDetails(violation.severity);
+
+                return (
+                  <li
+                    key={violation.metric}
+                    className={`reason-tracker__item reason-tracker__item--${severity.label.toLowerCase()}`}
+                  >
+                    <Chip
+                      className="reason-tracker__severity"
+                      label={severity.label}
+                      color={severity.color}
+                      size="small"
+                    />
+                    <Typography component="span" className="reason-tracker__reason">
+                      {formatAlertReason(violation)}
+                    </Typography>
+                  </li>
+                );
+              })}
+            </Stack>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
 
 ReasonTracker.propTypes = {
   active: PropTypes.bool,

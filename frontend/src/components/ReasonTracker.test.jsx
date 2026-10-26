@@ -27,11 +27,25 @@ describe('ReasonTracker', () => {
     );
 
     expect(screen.getAllByText('Critical')).toHaveLength(2);
+		expect(screen.getByRole('status')).toHaveTextContent('Active critical alert evidence: 2 reasons require review.');
+		expect(screen.getByRole('region', { name: 'Reason tracker' })).toHaveClass('reason-tracker--critical');
 		expect(screen.getByText(
 			'Flagged as critical because SpO2 fell to 88%, crossing the minimum baseline safety threshold of 90%.',
 		)).toBeInTheDocument();
 		expect(screen.getByText(
 			'Flagged as critical because Heart rate rose to 130 bpm, crossing the maximum baseline safety threshold of 120 bpm.',
 		)).toBeInTheDocument();
+  });
+
+  it('uses a warning label and tone for warning evidence', () => {
+    render(
+      <ReasonTracker
+        active
+        violations={[{ metric: 'SpO2', value: 89, unit: '%', severity: 'warning' }]}
+      />,
+    );
+
+    expect(screen.getByText('Warning')).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Reason tracker' })).toHaveClass('reason-tracker--warning');
   });
 });
