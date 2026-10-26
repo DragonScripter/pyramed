@@ -31,4 +31,26 @@ describe('telemetry route navigation', () => {
 
 		expect(screen.getAllByText('--')).toHaveLength(2);
 	});
+
+	it('shows and clears alert evidence from the demo telemetry stream', async () => {
+		vi.useFakeTimers();
+		render(
+			<MemoryRouter initialEntries={['/demo-telemetry']}>
+				<App />
+			</MemoryRouter>
+		);
+
+		await act(async () => {
+			vi.advanceTimersByTime(5000);
+		});
+		expect(screen.getByText(
+			'Flagged as critical because SpO2 fell to 89%, crossing the minimum baseline safety threshold of 90%.',
+		)).toBeInTheDocument();
+		expect(screen.getByRole('status')).toHaveTextContent('Active critical alert evidence: 1 reason require review.');
+
+		await act(async () => {
+			vi.advanceTimersByTime(5000);
+		});
+		expect(screen.getByRole('status')).toHaveTextContent('No active alert reasons.');
+	});
 });
