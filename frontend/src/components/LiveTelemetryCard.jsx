@@ -1,16 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Card, CardContent, Typography } from '@mui/material';
+import { evaluateCriticalAlerts } from './alertEvidence';
 
 const formatVital = (value) => value ?? '--';
-const toNumericVital = (value) => {
-	if (value === null || value === undefined || value === '') {
-		return null;
-	}
-
-	const numericValue = Number(value);
-	return Number.isFinite(numericValue) ? numericValue : null;
-};
 
 const TelemetryPanel = ({ label, value, unit, tone }) => (
 	<div className={`telemetry-panel telemetry-panel--${tone}`}>
@@ -61,17 +54,7 @@ const LiveTelemetryCard = ({ subscribeToVitals, onAlarmChange }) => {
 			currentVitalsRef.current = nextVitals;
 			setVitals(nextVitals);
 
-			const violations = [];
-			const oxygenSaturation = toNumericVital(nextVitals.spO2);
-			const heartRate = toNumericVital(nextVitals.heartRate);
-
-			if (oxygenSaturation !== null && oxygenSaturation < 90) {
-				violations.push({ metric: 'SpO2', value: oxygenSaturation, unit: '%' });
-			}
-
-			if (heartRate !== null && heartRate > 120) {
-				violations.push({ metric: 'HR', value: heartRate, unit: 'bpm' });
-			}
+			const violations = evaluateCriticalAlerts(nextVitals);
 
 			onAlarmChange?.({
 				isAlarmActive: violations.length > 0,

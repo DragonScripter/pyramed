@@ -23,8 +23,7 @@
   gap: 10px;
 }
 
-.reason-tracker__measurement {
+.reason-tracker__reason {
   color: var(--text-h);
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
+  line-height: 1.5;
 }

@@ -15,7 +15,7 @@ describe('ReasonTracker', () => {
     expect(screen.getByRole('status')).toHaveTextContent('No active alert reasons.');
   });
 
-  it('lists active critical measurements', () => {
+	it('maps active critical measurements to their mathematical reasons', () => {
     render(
       <ReasonTracker
         active
@@ -27,7 +27,11 @@ describe('ReasonTracker', () => {
     );
 
     expect(screen.getAllByText('Critical')).toHaveLength(2);
-    expect(screen.getByText('SpO2: 88%')).toBeInTheDocument();
-    expect(screen.getByText('HR: 130bpm')).toBeInTheDocument();
+		expect(screen.getByText(
+			'Flagged as critical because SpO2 fell to 88%, crossing the minimum baseline safety threshold of 90%.',
+		)).toBeInTheDocument();
+		expect(screen.getByText(
+			'Flagged as critical because Heart rate rose to 130 bpm, crossing the maximum baseline safety threshold of 120 bpm.',
+		)).toBeInTheDocument();
   });
 });
