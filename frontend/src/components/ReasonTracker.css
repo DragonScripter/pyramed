@@ -1,0 +1,30 @@
+.reason-tracker {
+  border-left: 5px solid var(--border);
+}
+
+.reason-tracker--active {
+  border-left-color: #b42318;
+}
+
+.reason-tracker__empty {
+  color: var(--text);
+  margin-top: 12px;
+}
+
+.reason-tracker__list {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+}
+
+.reason-tracker__item {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.reason-tracker__measurement {
+  color: var(--text-h);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}

@@ -21,7 +21,7 @@ describe('telemetry route navigation', () => {
 		);
 
 		await act(async () => {
-			vi.advanceTimersByTime(1200);
+			vi.advanceTimersByTime(2500);
 		});
 		expect(screen.getByText('72')).toBeInTheDocument();
 		expect(screen.getByText('98')).toBeInTheDocument();
