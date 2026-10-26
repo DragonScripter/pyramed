@@ -17,6 +17,8 @@ const ReasonTracker = ({ active = false, violations = [] }) => {
   );
   const trackerSeverity = hasCriticalReason ? 'critical' : 'warning';
   const activeReasonCount = violations.length;
+  const reasonLabel = activeReasonCount === 1 ? 'reason' : 'reasons';
+  const reviewVerb = activeReasonCount === 1 ? 'requires' : 'require';
 
   return (
     <Card
@@ -39,7 +41,7 @@ const ReasonTracker = ({ active = false, violations = [] }) => {
         ) : (
           <>
             <Typography className="reason-tracker__status" role="status" aria-live="polite" aria-atomic="true">
-              Active {trackerSeverity} alert evidence: {activeReasonCount} {activeReasonCount === 1 ? 'reason' : 'reasons'} require review.
+              Active {trackerSeverity} alert evidence: {activeReasonCount} {reasonLabel} {reviewVerb} review.
             </Typography>
             <Stack component="ul" className="reason-tracker__list" spacing={1}>
               {violations.map((violation) => {
