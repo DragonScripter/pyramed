@@ -301,4 +301,22 @@
     right: 0;
     border-right-color: var(--border);
   }
+  .bedside-chart__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  gap: 20px;
+  align-items: start;
+  margin-top: 20px;
+}
+
+.bedside-chart__layout .bedside-chart__telemetry {
+  min-width: 0;
+  padding-top: 0;
+}
+
+@media (max-width: 900px) {
+  .bedside-chart__layout {
+    grid-template-columns: 1fr;
+  }
+}
 }
