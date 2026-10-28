@@ -7,10 +7,10 @@ namespace PyraMed.Api.Models
     public class VitalRecord : BaseModel
     {
         [PrimaryKey("vital_id", false)]
-        public string VitalId { get; set; } = string.Empty;
+        public Guid VitalId { get; set; }
 
         [Column("patient_id")]
-        public string PatientId { get; set; } = string.Empty;
+        public Guid PatientId { get; set; }
 
         [Column("heart_rate")]
         public int HeartRate { get; set; }

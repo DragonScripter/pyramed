@@ -18,7 +18,7 @@ namespace PyraMed.Api.Models
         [Column("status")]
         public string Status { get; set; } = "Admitted";
 
-        [Column("created_at")]
+        [Column("created_at", ignoreOnInsert: true, ignoreOnUpdate: true)]
         public DateTime CreatedAt { get; set; }
     }
 }

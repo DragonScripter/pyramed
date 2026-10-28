@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using backend.Services;
 using PyraMed.Api.Models;
 
 namespace backend.Controllers;
@@ -8,10 +9,14 @@ namespace backend.Controllers;
 public class PatientController : ControllerBase
 {
     private readonly Supabase.Client _supabase;
+    private readonly ClinicalRules _clinicalRules;
 
-    public PatientController(Supabase.Client supabase)
+    public PatientController(
+        Supabase.Client supabase,
+        ClinicalRules clinicalRules)
     {
         _supabase = supabase;
+        _clinicalRules = clinicalRules;
     }
 
     public class CreatePatientRequest
@@ -42,12 +47,19 @@ public class PatientController : ControllerBase
             .From<Patient>()
             .Insert(patient);
 
-        var createdPatient = response.Models.FirstOrDefault();
+        var inserted = response.Models.FirstOrDefault();
 
-        if (createdPatient == null)
+        if (inserted == null)
         {
             return StatusCode(500, "Patient could not be created.");
         }
+        var fresh = await _supabase
+            .From<Patient>()
+            .Where(x => x.PatientId == inserted.PatientId)
+            .Get();
+        
+
+        var createdPatient = fresh.Models.FirstOrDefault() ?? inserted;
 
         return Ok(new
         {
@@ -98,6 +110,38 @@ public class PatientController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Returns a condensed summary of the selected patient's 100 most recent
+    /// vital records. Recorded extrema are not clinical classifications.
+    /// </summary>
+    [HttpGet("{patientId}/vitals/summary")]
+    [ProducesResponseType(typeof(VitalsSummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<VitalsSummaryResponse>> GetVitalsSummary(
+        string patientId)
+    {
+        if (!Guid.TryParse(patientId, out var id))
+        {
+            return BadRequest(new { message = "Invalid patient ID." });
+        }
+
+        try
+        {
+            var summary = await _clinicalRules.GetVitalsSummaryAsync(
+                id,
+                HttpContext.RequestAborted);
+            return Ok(summary);
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                message = "An error occurred while retrieving the patient vital summary."
+            });
+        }
+    }
+
     [HttpGet("{patientId}")]
     public async Task<IActionResult> GetPatient(string patientId)
     {
@@ -132,76 +176,5 @@ public class PatientController : ControllerBase
         {
             return StatusCode(500, new { message = "An error occurred while retrieving the patient.", error = ex.Message });
         }
-    }
-      // User Story 17: Update an existing patient's information
-    [HttpPut("{id}")]
-    public IActionResult UpdatePatient(
-        [FromRoute] string id,
-        [FromBody] UpdatePatientRequest? request)
-    {
-    // Validate patient ID
-    if (!Guid.TryParse(id, out var patientId) ||
-        patientId == Guid.Empty)
-    {
-        return BadRequest(new
-        {
-            message = "Invalid patient ID."
-        });
-    }
-
-    // Validate request body
-    if (request == null)
-    {
-        return BadRequest(new
-        {
-            message = "Patient update data is required."
-        });
-    }
-
-    // Validate name if supplied
-    if (request.Name != null &&
-        string.IsNullOrWhiteSpace(request.Name))
-    {
-        return BadRequest(new
-        {
-            message = "Patient name cannot be empty."
-        });
-    }
-
-    // Validate age if supplied
-    if (request.Age.HasValue && request.Age.Value < 0)
-    {
-        return BadRequest(new
-        {
-            message = "Patient age cannot be negative."
-        });
-    }
-
-           // Validate status if supplied
-        if (request.Status != null &&
-            string.IsNullOrWhiteSpace(request.Status))
-        {
-            return BadRequest(new
-            {
-                message = "Patient status cannot be empty."
-            });
-        }
-
-    // Ensure at least one field is supplied
-    if (request.Name == null &&
-        request.Age == null &&
-        request.Status == null)
-    {
-        return BadRequest(new
-        {
-            message = "At least one field must be provided."
-        });
-    }
-
-            // TODO: Jude will integrate the Supabase update.
-        return StatusCode(501, new
-        {
-            message = "Patient update database integration is pending."
-        });
     }
 }
