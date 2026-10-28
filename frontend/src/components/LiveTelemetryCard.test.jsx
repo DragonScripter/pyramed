@@ -47,6 +47,48 @@ describe('LiveTelemetryCard', () => {
 		expect(screen.getByText('74')).toBeInTheDocument();
 		expect(screen.getByText('97')).toBeInTheDocument();
 	});	
+
+	it('updates readings and alarms from Supabase database column names', async () => {
+		const stream = createVitalsStream();
+		const onAlarmChange = vi.fn();
+		render(
+			<LiveTelemetryCard
+				subscribeToVitals={stream.subscribeToVitals}
+				onAlarmChange={onAlarmChange}
+			/>
+		);
+
+		await act(async () => stream.emit({
+			new: { heart_rate: 130, spo2: 88 },
+		}));
+
+		expect(screen.getByText('130')).toBeInTheDocument();
+		expect(screen.getByText('88')).toBeInTheDocument();
+		expect(onAlarmChange).toHaveBeenLastCalledWith({
+			isAlarmActive: true,
+			violations: [
+				{ metric: 'SpO2', value: 88, unit: '%' },
+				{ metric: 'HR', value: 130, unit: 'bpm' },
+			],
+		});
+	});
+
+	it('processes a vital payload passed directly by the patient hook', async () => {
+		const onAlarmChange = vi.fn();
+		render(
+			<LiveTelemetryCard
+				vitalUpdate={{ new: { heart_rate: 121, spo2: 97 } }}
+				onAlarmChange={onAlarmChange}
+			/>
+		);
+
+		expect(screen.getByText('121')).toBeInTheDocument();
+		expect(screen.getByText('97')).toBeInTheDocument();
+		expect(onAlarmChange).toHaveBeenLastCalledWith({
+			isAlarmActive: true,
+			violations: [{ metric: 'HR', value: 121, unit: 'bpm' }],
+		});
+	});
 	
 	// test case: when patient vital disconnected, the values should reset to null
 	it('resets values to null when the update is an empty object', async () => {

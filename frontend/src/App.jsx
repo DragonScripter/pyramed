@@ -7,6 +7,7 @@ import PatientDemographicsCard from './components/PatientDemographicsCard'
 import Registration from './components/Registration'
 import PatientList from './components/PatientList'
 import ReasonTracker from './components/ReasonTracker'
+import usePatientVitals from './hooks/usePatientVitals'
 import './App.css'
 
 const demoVitals = [
@@ -41,6 +42,7 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
 
   // Use the URL ID, or fall back to the default patient ID
   const patientId = id ?? defaultPatientId
+  const latestPatientVital = usePatientVitals(demoTelemetry ? null : patientId)
 
   return (
     <main className="bedside-chart">
@@ -78,10 +80,9 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
         aria-label="Live bedside telemetry"
       >
         <LiveTelemetryCard
-          key={demoTelemetry ? 'demo' : 'live'}
-          subscribeToVitals={
-            demoTelemetry ? subscribeToDemoVitals : undefined
-          }
+          key={demoTelemetry ? 'demo' : `live-${patientId}`}
+          subscribeToVitals={demoTelemetry ? subscribeToDemoVitals : undefined}
+          vitalUpdate={demoTelemetry ? undefined : latestPatientVital}
           onAlarmChange={setAlarmState}
         />
         <div className="bedside-chart__reason-tracker">

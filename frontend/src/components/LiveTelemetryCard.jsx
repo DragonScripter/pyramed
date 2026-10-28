@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Card, CardContent, Typography } from '@mui/material';
 import { evaluateCriticalAlerts } from './alertEvidence';
@@ -21,50 +21,70 @@ const TelemetryPanel = ({ label, value, unit, tone }) => (
 	</div>
 );
 
-const LiveTelemetryCard = ({ subscribeToVitals, onAlarmChange }) => {
+const LiveTelemetryCard = ({ subscribeToVitals, vitalUpdate, onAlarmChange }) => {
 	const currentVitalsRef = useRef({ heartRate: null, spO2: null });
 	const [vitals, setVitals] = useState({ heartRate: null, spO2: null });
+
+	const handleVitalsUpdate = useCallback((payload) => {
+		const update = payload?.new ?? payload;
+		if (!update || typeof update !== 'object') {
+			return;
+		}
+
+		// An empty update resets both vitals to null; otherwise preserve current values
+		const isEmptyUpdate = Object.keys(update).length === 0;
+		const nextVitals = isEmptyUpdate
+			? { heartRate: null, spO2: null }
+			: {
+				heartRate: update.heartRate !== undefined
+					? update.heartRate
+					: update.heart_rate !== undefined
+						? update.heart_rate
+						: currentVitalsRef.current.heartRate,
+				spO2: update.spO2 !== undefined
+					? update.spO2
+					: update.oxygenSaturation !== undefined
+						? update.oxygenSaturation
+						: update.spo2 !== undefined
+							? update.spo2
+							: currentVitalsRef.current.spO2,
+			};
+
+		currentVitalsRef.current = nextVitals;
+		setVitals(nextVitals);
+
+			const violations = evaluateCriticalAlerts(nextVitals);
+		const violations = [];
+		const oxygenSaturation = toNumericVital(nextVitals.spO2);
+		const heartRate = toNumericVital(nextVitals.heartRate);
+
+		if (oxygenSaturation !== null && oxygenSaturation < 90) {
+			violations.push({ metric: 'SpO2', value: oxygenSaturation, unit: '%' });
+		}
+
+		if (heartRate !== null && heartRate > 120) {
+			violations.push({ metric: 'HR', value: heartRate, unit: 'bpm' });
+		}
+
+		onAlarmChange?.({
+			isAlarmActive: violations.length > 0,
+			violations,
+		});
+	}, [onAlarmChange]);
 
 	useEffect(() => {
 		if (!subscribeToVitals) {
 			return undefined;
 		}
-
-				const handleVitalsUpdate = (payload) => {
-			const update = payload?.new ?? payload;
-			if (!update || typeof update !== 'object') {
-				return;
-			}
-
-			// An empty update resets both vitals to null; otherwise preserve current values
-			const isEmptyUpdate = Object.keys(update).length === 0;
-			const nextVitals = isEmptyUpdate
-				? { heartRate: null, spO2: null }
-				: {
-					heartRate: update.heartRate !== undefined
-						? update.heartRate
-						: currentVitalsRef.current.heartRate,
-					spO2: update.spO2 !== undefined
-						? update.spO2
-						: update.oxygenSaturation !== undefined
-							? update.oxygenSaturation
-							: currentVitalsRef.current.spO2,
-				};
-
-			currentVitalsRef.current = nextVitals;
-			setVitals(nextVitals);
-
-			const violations = evaluateCriticalAlerts(nextVitals);
-
-			onAlarmChange?.({
-				isAlarmActive: violations.length > 0,
-				violations,
-			});
-		};
-
 		const unsubscribe = subscribeToVitals(handleVitalsUpdate);
 		return typeof unsubscribe === 'function' ? unsubscribe : undefined;
-	}, [subscribeToVitals, onAlarmChange]);
+	}, [subscribeToVitals, handleVitalsUpdate]);
+
+	useEffect(() => {
+		if (vitalUpdate) {
+			handleVitalsUpdate(vitalUpdate);
+		}
+	}, [vitalUpdate, handleVitalsUpdate]);
 
 	return (
 		<Card component="section" className="live-telemetry-card" aria-labelledby="live-telemetry-title">
@@ -96,6 +116,7 @@ const LiveTelemetryCard = ({ subscribeToVitals, onAlarmChange }) => {
 
 LiveTelemetryCard.propTypes = {
 	subscribeToVitals: PropTypes.func,
+	vitalUpdate: PropTypes.object,
 	onAlarmChange: PropTypes.func,
 };
 
