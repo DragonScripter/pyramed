@@ -203,3 +203,31 @@ describe('LiveTelemetryCard', () => {
 		expect(stream.unsubscribe).toHaveBeenCalledOnce();
 	});
 });
+it('processes Supabase realtime payload.new readings', () => {
+    let sendUpdate;
+
+    const subscribeToVitals = (callback) => {
+        sendUpdate = callback;
+        return () => {};
+    };
+
+    render(
+        <LiveTelemetryCard subscribeToVitals={subscribeToVitals} />
+    );
+
+    act(() => {
+        sendUpdate({
+            new: {
+                heart_rate: 85,
+                spo2: 97,
+                recorded_at: '2026-10-25T00:00:00Z',
+            },
+        });
+    });
+
+    expect(screen.getByText('85')).toBeInTheDocument();
+    expect(screen.getByText('97')).toBeInTheDocument();
+    expect(
+        screen.getByText(/Telemetry readings received: 1/)
+    ).toBeInTheDocument();
+});

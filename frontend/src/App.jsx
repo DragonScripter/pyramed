@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
+import { subscribeToPatientVitals } from './subscribeToPatientVitals'
 import { Routes, Route, useParams } from 'react-router-dom'
 import CriticalAlarmBanner from './components/CriticalAlarmBanner'
 import HamburgerMenu from './components/HambugerMenu.jsx'
@@ -9,6 +10,7 @@ import PatientList from './components/PatientList'
 import ReasonTracker from './components/ReasonTracker'
 import usePatientVitals from './hooks/usePatientVitals'
 import './App.css'
+
 
 const demoVitals = [
   { heartRate: 72, spO2: 98 },
@@ -43,6 +45,12 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
   // Use the URL ID, or fall back to the default patient ID
   const patientId = id ?? defaultPatientId
   const latestPatientVital = usePatientVitals(demoTelemetry ? null : patientId)
+
+
+  const subscribeToLiveVitals = useCallback(
+  (onUpdate) => subscribeToPatientVitals(patientId, onUpdate),
+  [patientId]
+)
 
   return (
     <main className="bedside-chart">
