@@ -25,6 +25,13 @@ public class PatientController : ControllerBase
         public int Age { get; set; }
     }
 
+       public class UpdatePatientRequest
+    {
+        public string? Name { get; set; }
+        public int? Age { get; set; }
+        public string? Status { get; set; }
+    }
+
     [HttpPost]
     public async Task<IActionResult> CreatePatient(
         [FromBody] CreatePatientRequest request)
