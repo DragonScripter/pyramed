@@ -47,6 +47,48 @@ describe('LiveTelemetryCard', () => {
 		expect(screen.getByText('74')).toBeInTheDocument();
 		expect(screen.getByText('97')).toBeInTheDocument();
 	});	
+
+	it('updates readings and alarms from Supabase database column names', async () => {
+		const stream = createVitalsStream();
+		const onAlarmChange = vi.fn();
+		render(
+			<LiveTelemetryCard
+				subscribeToVitals={stream.subscribeToVitals}
+				onAlarmChange={onAlarmChange}
+			/>
+		);
+
+		await act(async () => stream.emit({
+			new: { heart_rate: 130, spo2: 88 },
+		}));
+
+		expect(screen.getByText('130')).toBeInTheDocument();
+		expect(screen.getByText('88')).toBeInTheDocument();
+		expect(onAlarmChange).toHaveBeenLastCalledWith({
+			isAlarmActive: true,
+			violations: [
+				{ metric: 'SpO2', value: 88, unit: '%' },
+				{ metric: 'HR', value: 130, unit: 'bpm' },
+			],
+		});
+	});
+
+	it('processes a vital payload passed directly by the patient hook', async () => {
+		const onAlarmChange = vi.fn();
+		render(
+			<LiveTelemetryCard
+				vitalUpdate={{ new: { heart_rate: 121, spo2: 97 } }}
+				onAlarmChange={onAlarmChange}
+			/>
+		);
+
+		expect(screen.getByText('121')).toBeInTheDocument();
+		expect(screen.getByText('97')).toBeInTheDocument();
+		expect(onAlarmChange).toHaveBeenLastCalledWith({
+			isAlarmActive: true,
+			violations: [{ metric: 'HR', value: 121, unit: 'bpm' }],
+		});
+	});
 	
 	// test case: when patient vital disconnected, the values should reset to null
 	it('resets values to null when the update is an empty object', async () => {
@@ -91,8 +133,14 @@ describe('LiveTelemetryCard', () => {
 		expect(onAlarmChange).toHaveBeenLastCalledWith({
 			isAlarmActive: true,
 			violations: [
-				{ metric: 'SpO2', value: 88, unit: '%' },
-				{ metric: 'HR', value: 130, unit: 'bpm' },
+				{
+					metric: 'SpO2', vitalName: 'SpO2', value: 88, unit: '%',
+					threshold: 90, comparison: 'below', severity: 'critical',
+				},
+				{
+					metric: 'HR', vitalName: 'Heart rate', value: 130, unit: 'bpm',
+					threshold: 120, comparison: 'above', severity: 'critical',
+				},
 			],
 		});
 		expect(screen.getByText('130')).toBeInTheDocument();
@@ -101,7 +149,10 @@ describe('LiveTelemetryCard', () => {
 		await act(async () => stream.emit({ heartRate: 120 }));
 		expect(onAlarmChange).toHaveBeenLastCalledWith({
 			isAlarmActive: true,
-			violations: [{ metric: 'SpO2', value: 88, unit: '%' }],
+			violations: [{
+				metric: 'SpO2', vitalName: 'SpO2', value: 88, unit: '%',
+				threshold: 90, comparison: 'below', severity: 'critical',
+			}],
 		});
 
 		await act(async () => stream.emit({ spO2: 90 }));
@@ -124,13 +175,19 @@ describe('LiveTelemetryCard', () => {
 		await act(async () => stream.emit({ heartRate: 72, spO2: 89 }));
 		expect(onAlarmChange).toHaveBeenLastCalledWith({
 			isAlarmActive: true,
-			violations: [{ metric: 'SpO2', value: 89, unit: '%' }],
+			violations: [{
+				metric: 'SpO2', vitalName: 'SpO2', value: 89, unit: '%',
+				threshold: 90, comparison: 'below', severity: 'critical',
+			}],
 		});
 
 		await act(async () => stream.emit({ heartRate: 121, spO2: 97 }));
 		expect(onAlarmChange).toHaveBeenLastCalledWith({
 			isAlarmActive: true,
-			violations: [{ metric: 'HR', value: 121, unit: 'bpm' }],
+			violations: [{
+				metric: 'HR', vitalName: 'Heart rate', value: 121, unit: 'bpm',
+				threshold: 120, comparison: 'above', severity: 'critical',
+			}],
 		});
 	});
 
@@ -145,4 +202,32 @@ describe('LiveTelemetryCard', () => {
 
 		expect(stream.unsubscribe).toHaveBeenCalledOnce();
 	});
+});
+it('processes Supabase realtime payload.new readings', () => {
+    let sendUpdate;
+
+    const subscribeToVitals = (callback) => {
+        sendUpdate = callback;
+        return () => {};
+    };
+
+    render(
+        <LiveTelemetryCard subscribeToVitals={subscribeToVitals} />
+    );
+
+    act(() => {
+        sendUpdate({
+            new: {
+                heart_rate: 85,
+                spo2: 97,
+                recorded_at: '2026-10-25T00:00:00Z',
+            },
+        });
+    });
+
+    expect(screen.getByText('85')).toBeInTheDocument();
+    expect(screen.getByText('97')).toBeInTheDocument();
+    expect(
+        screen.getByText(/Telemetry readings received: 1/)
+    ).toBeInTheDocument();
 });
