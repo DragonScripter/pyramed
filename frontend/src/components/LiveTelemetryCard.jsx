@@ -4,7 +4,11 @@ import { Card, CardContent, Typography } from '@mui/material';
 import { evaluateCriticalAlerts } from './alertEvidence';
 
 const formatVital = (value) => value ?? '--';
-
+const toNumericVital = (value) => {
+	if (value === null || value === undefined || value === '') return null;
+	const numeric = Number(value);
+	return Number.isFinite(numeric) ? numeric : null;
+};
 const TelemetryPanel = ({ label, value, unit, tone }) => (
 	<div className={`telemetry-panel telemetry-panel--${tone}`}>
 		<Typography className="telemetry-panel__label" variant="overline">
@@ -70,7 +74,7 @@ const VitalTrend = ({ label, readings, field, color }) => {
     );
 };
 
-const LiveTelemetryCard = ({ subscribeToVitals, onAlarmChange }) => {
+const LiveTelemetryCard = ({ subscribeToVitals, vitalUpdate, onAlarmChange }) => {
 	const currentVitalsRef = useRef({ heartRate: null, spO2: null });
 	const [vitals, setVitals] = useState({ heartRate: null, spO2: null });
 	const [vitalsData, setVitalsData] = useState([]);
@@ -103,19 +107,18 @@ const LiveTelemetryCard = ({ subscribeToVitals, onAlarmChange }) => {
 		currentVitalsRef.current = nextVitals;
 		setVitals(nextVitals);
 
-			const violations = evaluateCriticalAlerts(nextVitals);
-		const violations = [];
-		const oxygenSaturation = toNumericVital(nextVitals.spO2);
-		const heartRate = toNumericVital(nextVitals.heartRate);
-
-		if (oxygenSaturation !== null && oxygenSaturation < 90) {
-			violations.push({ metric: 'SpO2', value: oxygenSaturation, unit: '%' });
+		if (!isEmptyUpdate) {
+			setVitalsData((previousData) => [
+				...previousData,
+				{
+					heartRate: nextVitals.heartRate,
+					spO2: nextVitals.spO2,
+					recordedAt: update.recorded_at ?? new Date().toISOString(),
+				},
+			]);
 		}
 
-		if (heartRate !== null && heartRate > 120) {
-			violations.push({ metric: 'HR', value: heartRate, unit: 'bpm' });
-		}
-
+		const violations = evaluateCriticalAlerts(nextVitals);
 		onAlarmChange?.({
 			isAlarmActive: violations.length > 0,
 			violations,
@@ -185,6 +188,7 @@ const LiveTelemetryCard = ({ subscribeToVitals, onAlarmChange }) => {
 
 				LiveTelemetryCard.propTypes = {
 					subscribeToVitals: PropTypes.func,
+					vitalUpdate: PropTypes.object,
 					onAlarmChange: PropTypes.func,
 				};
 
