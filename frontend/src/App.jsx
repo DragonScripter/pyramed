@@ -6,6 +6,7 @@ import LiveTelemetryCard from './components/LiveTelemetryCard'
 import PatientDemographicsCard from './components/PatientDemographicsCard'
 import Registration from './components/Registration'
 import PatientList from './components/PatientList'
+import ReasonTracker from './components/ReasonTracker'
 import usePatientVitals from './hooks/usePatientVitals'
 import './App.css'
 
@@ -84,6 +85,12 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
           vitalUpdate={demoTelemetry ? undefined : latestPatientVital}
           onAlarmChange={setAlarmState}
         />
+        <div className="bedside-chart__reason-tracker">
+          <ReasonTracker
+            active={alarmState.isAlarmActive}
+            violations={alarmState.violations}
+          />
+        </div>
       </section>
     </main>
   )

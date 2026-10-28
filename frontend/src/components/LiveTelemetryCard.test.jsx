@@ -133,8 +133,14 @@ describe('LiveTelemetryCard', () => {
 		expect(onAlarmChange).toHaveBeenLastCalledWith({
 			isAlarmActive: true,
 			violations: [
-				{ metric: 'SpO2', value: 88, unit: '%' },
-				{ metric: 'HR', value: 130, unit: 'bpm' },
+				{
+					metric: 'SpO2', vitalName: 'SpO2', value: 88, unit: '%',
+					threshold: 90, comparison: 'below', severity: 'critical',
+				},
+				{
+					metric: 'HR', vitalName: 'Heart rate', value: 130, unit: 'bpm',
+					threshold: 120, comparison: 'above', severity: 'critical',
+				},
 			],
 		});
 		expect(screen.getByText('130')).toBeInTheDocument();
@@ -143,7 +149,10 @@ describe('LiveTelemetryCard', () => {
 		await act(async () => stream.emit({ heartRate: 120 }));
 		expect(onAlarmChange).toHaveBeenLastCalledWith({
 			isAlarmActive: true,
-			violations: [{ metric: 'SpO2', value: 88, unit: '%' }],
+			violations: [{
+				metric: 'SpO2', vitalName: 'SpO2', value: 88, unit: '%',
+				threshold: 90, comparison: 'below', severity: 'critical',
+			}],
 		});
 
 		await act(async () => stream.emit({ spO2: 90 }));
@@ -166,13 +175,19 @@ describe('LiveTelemetryCard', () => {
 		await act(async () => stream.emit({ heartRate: 72, spO2: 89 }));
 		expect(onAlarmChange).toHaveBeenLastCalledWith({
 			isAlarmActive: true,
-			violations: [{ metric: 'SpO2', value: 89, unit: '%' }],
+			violations: [{
+				metric: 'SpO2', vitalName: 'SpO2', value: 89, unit: '%',
+				threshold: 90, comparison: 'below', severity: 'critical',
+			}],
 		});
 
 		await act(async () => stream.emit({ heartRate: 121, spO2: 97 }));
 		expect(onAlarmChange).toHaveBeenLastCalledWith({
 			isAlarmActive: true,
-			violations: [{ metric: 'HR', value: 121, unit: 'bpm' }],
+			violations: [{
+				metric: 'HR', vitalName: 'Heart rate', value: 121, unit: 'bpm',
+				threshold: 120, comparison: 'above', severity: 'critical',
+			}],
 		});
 	});
 

@@ -42,7 +42,7 @@ describe('telemetry route navigation', () => {
 		);
 
 		await act(async () => {
-			vi.advanceTimersByTime(1200);
+			vi.advanceTimersByTime(2500);
 		});
 		expect(screen.getByText('72')).toBeInTheDocument();
 		expect(screen.getByText('98')).toBeInTheDocument();
@@ -53,6 +53,10 @@ describe('telemetry route navigation', () => {
 		expect(screen.getAllByText('--')).toHaveLength(2);
 	});
 
+	it('shows and clears alert evidence from the demo telemetry stream', async () => {
+		vi.useFakeTimers();
+		render(
+			<MemoryRouter initialEntries={['/demo-telemetry']}>
 	it('subscribes to patient-specific vital inserts and removes the channel on unmount', () => {
 		const { unmount } = render(
 			<MemoryRouter initialEntries={['/patients/patient-123']}>
@@ -60,6 +64,20 @@ describe('telemetry route navigation', () => {
 			</MemoryRouter>
 		);
 
+		await act(async () => {
+			vi.advanceTimersByTime(5000);
+		});
+		expect(screen.getByText(
+			'Flagged as critical because SpO2 fell to 89%, crossing the minimum baseline safety threshold of 90%.',
+		)).toBeInTheDocument();
+		expect(screen.getByRole('status')).toHaveTextContent('Active critical alert evidence: 1 reason requires review.');
+
+		await act(async () => {
+			vi.advanceTimersByTime(5000);
+		});
+		expect(screen.getByRole('status')).toHaveTextContent('No active alert reasons.');
+	});
+});
 		expect(supabase.channel).toHaveBeenCalledWith('vitals-patient-123');
 		expect(channel.on).toHaveBeenCalledWith(
 			'postgres_changes',
