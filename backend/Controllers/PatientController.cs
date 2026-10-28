@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using backend.Services;
 using PyraMed.Api.Models;
 
 namespace backend.Controllers;
@@ -8,10 +9,14 @@ namespace backend.Controllers;
 public class PatientController : ControllerBase
 {
     private readonly Supabase.Client _supabase;
+    private readonly ClinicalRules _clinicalRules;
 
-    public PatientController(Supabase.Client supabase)
+    public PatientController(
+        Supabase.Client supabase,
+        ClinicalRules clinicalRules)
     {
         _supabase = supabase;
+        _clinicalRules = clinicalRules;
     }
 
     public class CreatePatientRequest
@@ -35,12 +40,19 @@ public class PatientController : ControllerBase
             .From<Patient>()
             .Insert(patient);
 
-        var createdPatient = response.Models.FirstOrDefault();
+        var inserted = response.Models.FirstOrDefault();
 
-        if (createdPatient == null)
+        if (inserted == null)
         {
             return StatusCode(500, "Patient could not be created.");
         }
+        var fresh = await _supabase
+            .From<Patient>()
+            .Where(x => x.PatientId == inserted.PatientId)
+            .Get();
+        
+
+        var createdPatient = fresh.Models.FirstOrDefault() ?? inserted;
 
         return Ok(new
         {
@@ -87,6 +99,38 @@ public class PatientController : ControllerBase
             return StatusCode(500, new
             {
                 message = "An error occurred while retrieving patients."
+            });
+        }
+    }
+
+    /// <summary>
+    /// Returns a condensed summary of the selected patient's 100 most recent
+    /// vital records. Recorded extrema are not clinical classifications.
+    /// </summary>
+    [HttpGet("{patientId}/vitals/summary")]
+    [ProducesResponseType(typeof(VitalsSummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<VitalsSummaryResponse>> GetVitalsSummary(
+        string patientId)
+    {
+        if (!Guid.TryParse(patientId, out var id))
+        {
+            return BadRequest(new { message = "Invalid patient ID." });
+        }
+
+        try
+        {
+            var summary = await _clinicalRules.GetVitalsSummaryAsync(
+                id,
+                HttpContext.RequestAborted);
+            return Ok(summary);
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                message = "An error occurred while retrieving the patient vital summary."
             });
         }
     }

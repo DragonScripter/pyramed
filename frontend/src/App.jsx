@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
+import { subscribeToPatientVitals } from './subscribeToPatientVitals'
 import { Routes, Route, useParams } from 'react-router-dom'
 import CriticalAlarmBanner from './components/CriticalAlarmBanner'
 import CdsInsightsSidebar from './components/CdsInsightsSidebar'
@@ -7,7 +8,10 @@ import LiveTelemetryCard from './components/LiveTelemetryCard'
 import PatientDemographicsCard from './components/PatientDemographicsCard'
 import Registration from './components/Registration'
 import PatientList from './components/PatientList'
+import ReasonTracker from './components/ReasonTracker'
+import usePatientVitals from './hooks/usePatientVitals'
 import './App.css'
+
 
 const demoVitals = [
   { heartRate: 72, spO2: 98 },
@@ -41,6 +45,13 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
 
   // Use the URL ID, or fall back to the default patient ID
   const patientId = id ?? defaultPatientId
+  const latestPatientVital = usePatientVitals(demoTelemetry ? null : patientId)
+
+
+  const subscribeToLiveVitals = useCallback(
+  (onUpdate) => subscribeToPatientVitals(patientId, onUpdate),
+  [patientId]
+)
 
   return (
     <main className="bedside-chart">
@@ -73,22 +84,23 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
         />
       </section>
 
-    <div className="bedside-chart__layout">
-  <section
-    className="bedside-chart__telemetry"
-    aria-label="Live bedside telemetry"
-  >
-    <LiveTelemetryCard
-      key={demoTelemetry ? 'demo' : 'live'}
-      subscribeToVitals={
-        demoTelemetry ? subscribeToDemoVitals : undefined
-      }
-      onAlarmChange={setAlarmState}
-    />
-  </section>
-
-  <CdsInsightsSidebar evaluation={null} />
-</div>
+      <section
+        className="bedside-chart__telemetry"
+        aria-label="Live bedside telemetry"
+      >
+        <LiveTelemetryCard
+          key={demoTelemetry ? 'demo' : `live-${patientId}`}
+          subscribeToVitals={demoTelemetry ? subscribeToDemoVitals : undefined}
+          vitalUpdate={demoTelemetry ? undefined : latestPatientVital}
+          onAlarmChange={setAlarmState}
+        />
+        <div className="bedside-chart__reason-tracker">
+          <ReasonTracker
+            active={alarmState.isAlarmActive}
+            violations={alarmState.violations}
+          />
+        </div>
+      </section>
     </main>
   )
 }
