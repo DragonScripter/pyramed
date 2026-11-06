@@ -1,0 +1,75 @@
+import { Link } from "react-router-dom";
+import "./WelcomePage.css";
+
+const HIGHLIGHTS = [
+  {
+    title: "Patient registration",
+    text: "Admit patients through intake forms and watch new records flow into the rest of the hospital's systems.",
+  },
+  {
+    title: "Vital monitoring",
+    text: "Follow simulated vital signs on a bedside monitor, driven by background processes running around the clock.",
+  },
+  {
+    title: "Clinical decision support",
+    text: "See rule-based alerts fire when a patient's condition changes, and trace the reasoning behind each one.",
+  },
+  {
+    title: "Privacy auditing",
+    text: "Review audit logs that record who accessed what, so you can see how security and compliance work behind the scenes.",
+  },
+];
+
+export default function WelcomePage() {
+  return (
+    <div className="welcome">
+      <header className="welcome-nav">
+        <span className="welcome-brand">PyraMed</span>
+        <nav aria-label="Account">
+          <Link to="/login" className="welcome-nav-link">Log in</Link>
+        </nav>
+      </header>
+
+      <main>
+        <section className="welcome-hero" aria-labelledby="hero-title">
+          <h1 id="hero-title">PyraMed</h1>
+          <p className="welcome-tagline">
+            A hospital operations simulator that shows how healthcare software
+            systems work together, and what happens when one of them changes.
+          </p>
+          <div className="welcome-cta">
+            <Link to="/login" className="btn btn-primary">Log in</Link>
+            <Link to="/register" className="btn btn-secondary">Register</Link>
+          </div>
+        </section>
+
+        <section className="welcome-about" aria-labelledby="about-title">
+          <h2 id="about-title">About PyraMed</h2>
+          <p className="welcome-about-intro">
+            Hospitals depend on many connected systems running at once. PyraMed
+            models the day-to-day operation of those systems, from patient
+            registration and vital monitoring to clinical decision support,
+            privacy auditing, and the background processes that keep it all
+            moving. It is built for IT-focused users who want to experience how
+            an event in one system can ripple through the rest of the hospital.
+          </p>
+
+          <div className="welcome-cards">
+            {HIGHLIGHTS.map((item) => (
+              <article key={item.title} className="welcome-card">
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </article>
+            ))}
+          </div>
+
+          <p className="welcome-scope">
+            <strong>Scope:</strong> PyraMed is a simulation for learning and
+            experimentation. All patients and data are simulated, and it is not
+            a medical device or a tool for real clinical decisions.
+          </p>
+        </section>
+      </main>
+    </div>
+  );
+}
