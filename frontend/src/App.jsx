@@ -9,6 +9,7 @@ import Registration from './components/Registration'
 import PatientList from './components/PatientList'
 import ReasonTracker from './components/ReasonTracker'
 import usePatientVitals from './hooks/usePatientVitals'
+import WelcomePage from './components/WelcomePage'
 import './App.css'
 
 
@@ -113,13 +114,14 @@ function App() {
 
       <Routes>
         <Route
-          path="/"
+          path="/bedside"
           element={<BedsideChart defaultPatientId={patientId} />}
         />
         <Route
           path="/patients"
           element={<PatientList />}
         />
+        <Route path="/"element={<WelcomePage />} />
         <Route
           path="/patients/:id"
           element={<BedsideChart defaultPatientId={patientId} />}
