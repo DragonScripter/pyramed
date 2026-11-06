@@ -1,3 +1,5 @@
+import PatientStatusBadge from './PatientStatusBadge';
+import './PatientList.css';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -148,11 +150,23 @@ const PatientList = () => {
                     },
                   }}
                 >
-                  <ListItemText
-                    primary={p.name}
-                    secondary={`Admission status: ${p.status ?? 'Unknown'}`}
-                    slotProps={{ primary: { sx: { fontWeight: 600 } } }}
-                  />
+                  <div className="patient-list__row-content">
+  <div className="patient-list__details">
+    <div className="patient-list__info">
+      <ListItemText
+        primary={p.name}
+        secondary={`Admission status: ${p.status ?? 'Unknown'}`}
+        slotProps={{
+          primary: { sx: { fontWeight: 600 } },
+        }}
+      />
+    </div>
+  </div>
+
+  <div className="patient-list__status">
+    <PatientStatusBadge statusSummary={p.statusSummary} />
+  </div>
+</div>
                 </ListItemButton>
               );
             })}
