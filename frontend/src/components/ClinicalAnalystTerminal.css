@@ -77,6 +77,13 @@
   margin-top: 20px;
 }
 
+.clinical-analyst-terminal__metrics-status {
+  min-height: 20px;
+  margin: 12px 0 0;
+  color: var(--text);
+  font-size: 14px;
+}
+
 .clinical-analyst-terminal__metric-card,
 .clinical-analyst-terminal__table-canvas {
   min-width: 0;
@@ -99,6 +106,16 @@
   margin: 12px 0 0;
   color: var(--text);
   font-size: 14px;
+}
+
+.clinical-analyst-terminal__metric-card .clinical-analyst-terminal__metric-value {
+  margin: 12px 0 0;
+  color: var(--text-h);
+  font-size: clamp(30px, 4vw, 42px);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
 }
 
 .clinical-analyst-terminal__table-canvas {

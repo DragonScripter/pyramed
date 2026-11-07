@@ -2,7 +2,7 @@
 
 import '@testing-library/jest-dom/vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import App from '../App'
 
@@ -15,8 +15,24 @@ vi.mock('../supabaseClient', () => ({
 
 vi.mock('./PatientDemographicsCard', () => ({ default: () => null }))
 
+afterEach(() => {
+  vi.unstubAllGlobals()
+})
+
 describe('Clinical Analyst Terminal navigation', () => {
   it('opens the terminal from the navigation menu', () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          activePatientCount: 0,
+          rollingHourAlertTriggers: 0,
+          datasetResponseStability: null,
+        }),
+      }),
+    )
+
     render(
       <MemoryRouter initialEntries={['/']}>
         <App />

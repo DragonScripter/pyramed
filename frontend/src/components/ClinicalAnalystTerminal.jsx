@@ -1,4 +1,5 @@
 import './ClinicalAnalystTerminal.css'
+import OperationsMetricsPanel from './OperationsMetricsPanel'
 
 function ClinicalAnalystTerminal() {
   return (
@@ -20,28 +21,7 @@ function ClinicalAnalystTerminal() {
         className="clinical-analyst-terminal__metrics-panel"
         aria-labelledby="operations-metrics-title"
       >
-        <div className="clinical-analyst-terminal__section-heading">
-          <div>
-            <p className="clinical-analyst-terminal__section-label">Snapshot</p>
-            <h2 id="operations-metrics-title">Operations metrics</h2>
-          </div>
-          <p>Live counters will appear here.</p>
-        </div>
-
-        <div className="clinical-analyst-terminal__metrics-grid">
-          <article className="clinical-analyst-terminal__metric-card">
-            <h3>Active patients</h3>
-            <p>Awaiting operational data</p>
-          </article>
-          <article className="clinical-analyst-terminal__metric-card">
-            <h3>Alerts in the last hour</h3>
-            <p>Awaiting operational data</p>
-          </article>
-          <article className="clinical-analyst-terminal__metric-card">
-            <h3>Response stability</h3>
-            <p>Awaiting operational data</p>
-          </article>
-        </div>
+        <OperationsMetricsPanel />
       </section>
 
       <section
