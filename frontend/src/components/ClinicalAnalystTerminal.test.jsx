@@ -33,5 +33,11 @@ describe('Clinical Analyst Terminal navigation', () => {
         name: 'Clinical Analyst Administration Terminal',
       }),
     ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'Operations metrics' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'Hospital bed overview' }),
+    ).toBeInTheDocument()
   })
 })
