@@ -84,8 +84,7 @@
   font-size: 14px;
 }
 
-.clinical-analyst-terminal__metric-card,
-.clinical-analyst-terminal__table-canvas {
+.clinical-analyst-terminal__metric-card {
   min-width: 0;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -118,15 +117,122 @@
   line-height: 1;
 }
 
-.clinical-analyst-terminal__table-canvas {
-  display: grid;
-  place-items: center;
-  min-height: 280px;
-  padding: 24px;
-  box-sizing: border-box;
-  border-style: dashed;
+.clinical-analyst-terminal__table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.clinical-analyst-terminal__table-toolbar label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-h);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.clinical-analyst-terminal__table-toolbar select {
+  padding: 7px 9px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+}
+
+.clinical-analyst-terminal__table-toolbar p {
+  margin: 0;
   color: var(--text);
-  text-align: center;
+  font-size: 14px;
+  text-align: right;
+}
+
+.clinical-analyst-terminal__table-scroll {
+  min-height: 280px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.clinical-analyst-terminal__table-scroll:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.clinical-analyst-terminal__table {
+  width: 100%;
+  min-width: 850px;
+  border-collapse: collapse;
+  color: var(--text-h);
+  font-size: 14px;
+}
+
+.clinical-analyst-terminal__table th,
+.clinical-analyst-terminal__table td {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.clinical-analyst-terminal__table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--code-bg);
+}
+
+.clinical-analyst-terminal__table thead button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.clinical-analyst-terminal__table thead button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.clinical-analyst-terminal__table tbody tr:not(.clinical-analyst-terminal__group-row):hover {
+  background: var(--social-bg);
+}
+
+.clinical-analyst-terminal__group-row th {
+  background: var(--accent-bg);
+  color: var(--text-h);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.clinical-analyst-terminal__status {
+  display: inline-flex;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.clinical-analyst-terminal__status--critical {
+  background: #fbe9e7;
+  color: #b3261e;
+}
+
+.clinical-analyst-terminal__status--stable {
+  background: #e8f5e9;
+  color: #1b5e20;
+}
+
+.clinical-analyst-terminal__status--no-telemetry {
+  background: var(--code-bg);
+  color: var(--text);
 }
 
 @media (max-width: 900px) {
@@ -161,6 +267,15 @@
   }
 
   .clinical-analyst-terminal__section-heading > p {
+    text-align: left;
+  }
+
+  .clinical-analyst-terminal__table-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .clinical-analyst-terminal__table-toolbar p {
     text-align: left;
   }
 

@@ -1,4 +1,5 @@
 import './ClinicalAnalystTerminal.css'
+import BedOverviewTable from './BedOverviewTable'
 import OperationsMetricsPanel from './OperationsMetricsPanel'
 
 function ClinicalAnalystTerminal() {
@@ -33,12 +34,10 @@ function ClinicalAnalystTerminal() {
             <p className="clinical-analyst-terminal__section-label">Bed census</p>
             <h2 id="hospital-bed-overview-title">Hospital bed overview</h2>
           </div>
-          <p>Sortable bed records will appear here.</p>
+          <p>Sort columns or group rows to review operational state.</p>
         </div>
 
-        <div className="clinical-analyst-terminal__table-canvas">
-          <p>Operational bed data is not connected yet.</p>
-        </div>
+        <BedOverviewTable />
       </section>
     </main>
   )

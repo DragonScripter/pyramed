@@ -32,4 +32,22 @@ public sealed class OperationsController : ControllerBase
             });
         }
     }
+
+    [HttpGet("bed-overview")]
+    [ProducesResponseType(typeof(OperationsBedOverviewResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<OperationsBedOverviewResponse>> GetBedOverview()
+    {
+        try
+        {
+            return Ok(await _operationsMetricsService.GetBedOverviewAsync());
+        }
+        catch
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                message = "An error occurred while retrieving the hospital bed overview."
+            });
+        }
+    }
 }

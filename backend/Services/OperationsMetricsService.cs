@@ -15,10 +15,29 @@ public sealed class OperationsMetricsService
     public async Task<OperationsMetricsResponse> GetMetricsAsync()
     {
         var generatedAt = DateTime.UtcNow;
-        var patients = await GetPatientsAsync();
-        var vitalRecords = await GetVitalRecordsAsync(generatedAt.AddHours(-1));
+        var patientsTask = GetPatientsAsync();
+        var vitalRecordsTask = GetVitalRecordsAsync(generatedAt.AddHours(-1));
 
-        return OperationsMetricsBuilder.Build(patients, vitalRecords, generatedAt);
+        await Task.WhenAll(patientsTask, vitalRecordsTask);
+
+        return OperationsMetricsBuilder.Build(
+            await patientsTask,
+            await vitalRecordsTask,
+            generatedAt);
+    }
+
+    public async Task<OperationsBedOverviewResponse> GetBedOverviewAsync()
+    {
+        var generatedAt = DateTime.UtcNow;
+        var patientsTask = GetPatientsAsync();
+        var vitalRecordsTask = GetVitalRecordsAsync(generatedAt.AddHours(-1));
+
+        await Task.WhenAll(patientsTask, vitalRecordsTask);
+
+        return OperationsBedOverviewBuilder.Build(
+            await patientsTask,
+            await vitalRecordsTask,
+            generatedAt);
     }
 
     private async Task<List<Patient>> GetPatientsAsync()
