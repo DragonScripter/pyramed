@@ -4,6 +4,7 @@ import { Routes, Route, useParams } from 'react-router-dom'
 import CriticalAlarmBanner from './components/CriticalAlarmBanner'
 import CdsInsightsSidebar from './components/CdsInsightsSidebar'
 import HamburgerMenu from './components/HambugerMenu.jsx'
+import ClinicalAnalystTerminal from './components/ClinicalAnalystTerminal'
 import LiveTelemetryCard from './components/LiveTelemetryCard'
 import PatientDemographicsCard from './components/PatientDemographicsCard'
 import Registration from './components/Registration'
@@ -145,6 +146,11 @@ function App() {
               demoTelemetry={true}
             />
           }
+        />
+
+        <Route
+          path="/clinical-analyst"
+          element={<ClinicalAnalystTerminal />}
         />
 
         <Route
