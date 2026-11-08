@@ -31,6 +31,7 @@ builder.Services.AddControllers();
 builder.Services.AddHostedService<VitalSimulator>();
 //Ticket10
 builder.Services.AddSingleton<backend.Services.CdsValidationEngine>();
+builder.Services.AddScoped<IBodyCompositionService, BodyCompositionService>();
 
 // Configure CORS for React
 builder.Services.AddCors(options =>
