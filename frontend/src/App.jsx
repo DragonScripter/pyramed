@@ -10,6 +10,7 @@ import Registration from './components/Registration'
 import PatientList from './components/PatientList'
 import ReasonTracker from './components/ReasonTracker'
 import usePatientVitals from './hooks/usePatientVitals'
+import ActivityLog, { ActivityLogProvider } from './components/ActivityLog.jsx'
 import './App.css'
 
 
@@ -116,6 +117,7 @@ function App() {
 
   return (
     <>
+     <ActivityLogProvider>
       <HamburgerMenu patientId={patientId} />
 
       <Routes>
@@ -152,6 +154,8 @@ function App() {
           element={<p>Page not found</p>}
         />
       </Routes>
+       <ActivityLog />
+      </ActivityLogProvider>
     </>
   )
 }
