@@ -65,6 +65,11 @@ function HamburgerMenu({ patientId }) {
               Demo Telemetry
             </Link>
           </li>
+          <li>
+          <Link to="/profile" onClick={close}>
+            My Profile
+          </Link>
+        </li>
         </ul>
       )}
     </nav>
