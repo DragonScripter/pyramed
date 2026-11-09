@@ -1,0 +1,145 @@
+/* Bottom-docked activity log. No blinking or flashing animations by design. */
+
+.activity-log {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 900;
+  background: #ffffff;
+  color: #1f2933;
+  border-top: 1px solid #cbd2d9;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+  font-size: 14px;
+}
+
+.activity-log__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 40px;
+  padding: 0 12px;
+}
+
+.activity-log__toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.activity-log__badge {
+  background: #3e4c59;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 1px 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.activity-log__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.activity-log__actions button {
+  font: inherit;
+  padding: 4px 10px;
+  border: 1px solid #9aa5b1;
+  border-radius: 4px;
+  background: #ffffff;
+  color: inherit;
+  cursor: pointer;
+}
+
+.activity-log__actions button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.activity-log__panel {
+  max-height: 280px;
+  overflow-y: auto;
+  border-top: 1px solid #e4e7eb;
+}
+
+.activity-log__empty {
+  margin: 0;
+  padding: 16px 12px;
+  color: #616e7c;
+}
+
+.activity-log__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.activity-log__entry {
+  display: grid;
+  grid-template-columns: 110px 90px 1fr;
+  gap: 12px;
+  align-items: baseline;
+  padding: 8px 12px;
+  border-bottom: 1px solid #f0f2f4;
+  border-left: 4px solid transparent;
+}
+
+.activity-log__entry--unread {
+  font-weight: 600;
+  background: #f5f7fa;
+}
+
+.activity-log__entry--info {
+  border-left-color: #2680c2;
+}
+
+.activity-log__entry--warning {
+  border-left-color: #b7791f;
+}
+
+.activity-log__entry--critical {
+  border-left-color: #c53030;
+}
+
+/* Severity is shown by icon + text label, not color alone. */
+.activity-log__entry--info .activity-log__severity {
+  color: #1c5f94;
+}
+
+.activity-log__entry--warning .activity-log__severity {
+  color: #8a5a12;
+}
+
+.activity-log__entry--critical .activity-log__severity {
+  color: #a32424;
+}
+
+.activity-log__severity {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.activity-log__time {
+  color: #616e7c;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.activity-log__message {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+  .activity-log__entry {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}
