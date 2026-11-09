@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Routes, Route, useParams } from 'react-router-dom'
+import CriticalAlarmBanner from './components/CriticalAlarmBanner'
 import HamburgerMenu from './components/HambugerMenu.jsx'
 import ClinicalAnalystTerminal from './components/ClinicalAnalystTerminal'
 import LiveTelemetryCard from './components/LiveTelemetryCard'
@@ -11,6 +12,7 @@ import BodyCompositionDashboard from './pages/BodyCompositionDashboard'
 import ToastContainer from './components/ToastContainer'
 import { ToastProvider } from './context/ToastProvider'
 import usePatientVitals from './hooks/usePatientVitals'
+import useAlertEventBridge from './hooks/useAlertEventBridge'
 import ActivityLog, { ActivityLogProvider } from './components/ActivityLog.jsx'
 import UserProfile from './components/UserProfile'
 import WelcomePage from './components/WelcomePage'
@@ -43,6 +45,19 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
     violations: [],
   })
   const [isPatientConnected, setIsPatientConnected] = useState(false)
+
+  const handleAlertEvent = useAlertEventBridge({
+    // TODO: Connect to the global toast provider (Ticket 21, Subtask 1).
+    // TODO: Connect to the activity log (Ticket 21, Subtask 2).
+  })
+
+  const handleAlarmChange = useCallback(
+    (nextAlarmState) => {
+      setAlarmState(nextAlarmState)
+      handleAlertEvent(nextAlarmState)
+    },
+    [handleAlertEvent]
+  )
 
   // Read the patient ID from the URL
   const { id } = useParams()
@@ -86,7 +101,7 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
           key={demoTelemetry ? 'demo' : `live-${patientId}`}
           subscribeToVitals={demoTelemetry ? subscribeToDemoVitals : undefined}
           vitalUpdate={demoTelemetry ? undefined : latestPatientVital}
-          onAlarmChange={setAlarmState}
+          onAlarmChange={handleAlarmChange}
         />
         <div className="bedside-chart__reason-tracker">
           <ReasonTracker
@@ -109,62 +124,52 @@ function App() {
   )
 
   return (
-    <>
-     <ActivityLogProvider>
-    <ToastProvider>
-      <HamburgerMenu patientId={patientId} />
+    <ActivityLogProvider>
+      <ToastProvider>
+        <HamburgerMenu patientId={patientId} />
 
-      <Routes>
-        <Route
-          path="/bedside"
-          element={<BedsideChart defaultPatientId={patientId} />}
-        />
-        <Route path="/profile" element={<UserProfile />} />
-        <Route
-          path="/patients"
-          element={<PatientList />}
-        />
-        <Route path="/"element={<WelcomePage />} />
-        <Route
-          path="/patients/:id"
-          element={<BedsideChart defaultPatientId={patientId} />}
-        />
+        <Routes>
+          <Route
+            path="/bedside"
+            element={<BedsideChart defaultPatientId={patientId} />}
+          />
+          <Route path="/profile" element={<UserProfile />} />
+          <Route path="/patients" element={<PatientList />} />
+          <Route path="/" element={<WelcomePage />} />
+          <Route
+            path="/patients/:id"
+            element={<BedsideChart defaultPatientId={patientId} />}
+          />
 
-        <Route
-          path="/registration"
-          element={<Registration />}
-        />
+          <Route path="/registration" element={<Registration />} />
 
-        <Route
-          path="/demo-telemetry"
-          element={
-            <BedsideChart
-              defaultPatientId={patientId}
-              demoTelemetry={true}
-            />
-          }
-        />
+          <Route
+            path="/demo-telemetry"
+            element={
+              <BedsideChart
+                defaultPatientId={patientId}
+                demoTelemetry={true}
+              />
+            }
+          />
 
-        <Route
-          path="/body-composition"
-          element={<BodyCompositionDashboard />}
-        />
+          <Route
+            path="/body-composition"
+            element={<BodyCompositionDashboard />}
+          />
 
-        <Route
-          path="/clinical-analyst"
-          element={<ClinicalAnalystTerminal />}
-        />
+          <Route
+            path="/clinical-analyst"
+            element={<ClinicalAnalystTerminal />}
+          />
 
-        <Route
-          path="*"
-          element={<p>Page not found</p>}
-        />
-      </Routes>
-       <ActivityLog />
-      </ActivityLogProvider>
-    </>
-      <ToastContainer />
-    </ToastProvider>
+          <Route path="*" element={<p>Page not found</p>} />
+        </Routes>
+
+        <ActivityLog />
+        <ToastContainer />
+      </ToastProvider>
+    </ActivityLogProvider>
   )
 }
 
