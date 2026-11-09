@@ -1,9 +1,8 @@
-import { useCallback, useState } from 'react'
-import { subscribeToPatientVitals } from './subscribeToPatientVitals'
+import { useState } from 'react'
 import { Routes, Route, useParams } from 'react-router-dom'
 import CriticalAlarmBanner from './components/CriticalAlarmBanner'
-import CdsInsightsSidebar from './components/CdsInsightsSidebar'
 import HamburgerMenu from './components/HambugerMenu.jsx'
+import ClinicalAnalystTerminal from './components/ClinicalAnalystTerminal'
 import LiveTelemetryCard from './components/LiveTelemetryCard'
 import PatientDemographicsCard from './components/PatientDemographicsCard'
 import Registration from './components/Registration'
@@ -46,12 +45,6 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
   // Use the URL ID, or fall back to the default patient ID
   const patientId = id ?? defaultPatientId
   const latestPatientVital = usePatientVitals(demoTelemetry ? null : patientId)
-
-
-  const subscribeToLiveVitals = useCallback(
-  (onUpdate) => subscribeToPatientVitals(patientId, onUpdate),
-  [patientId]
-)
 
   return (
     <main className="bedside-chart">
@@ -145,6 +138,11 @@ function App() {
               demoTelemetry={true}
             />
           }
+        />
+
+        <Route
+          path="/clinical-analyst"
+          element={<ClinicalAnalystTerminal />}
         />
 
         <Route

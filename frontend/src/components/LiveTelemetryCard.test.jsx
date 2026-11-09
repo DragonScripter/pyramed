@@ -67,8 +67,14 @@ describe('LiveTelemetryCard', () => {
 		expect(onAlarmChange).toHaveBeenLastCalledWith({
 			isAlarmActive: true,
 			violations: [
-				{ metric: 'SpO2', value: 88, unit: '%' },
-				{ metric: 'HR', value: 130, unit: 'bpm' },
+				{
+					metric: 'SpO2', vitalName: 'SpO2', value: 88, unit: '%',
+					threshold: 90, comparison: 'below', severity: 'critical',
+				},
+				{
+					metric: 'HR', vitalName: 'Heart rate', value: 130, unit: 'bpm',
+					threshold: 120, comparison: 'above', severity: 'critical',
+				},
 			],
 		});
 	});
@@ -86,7 +92,10 @@ describe('LiveTelemetryCard', () => {
 		expect(screen.getByText('97')).toBeInTheDocument();
 		expect(onAlarmChange).toHaveBeenLastCalledWith({
 			isAlarmActive: true,
-			violations: [{ metric: 'HR', value: 121, unit: 'bpm' }],
+			violations: [{
+				metric: 'HR', vitalName: 'Heart rate', value: 121, unit: 'bpm',
+				threshold: 120, comparison: 'above', severity: 'critical',
+			}],
 		});
 	});
 	
