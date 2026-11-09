@@ -1,4 +1,6 @@
-
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using backend.BackgroundWorkers;
 using backend.Services;
 
@@ -28,6 +30,52 @@ builder.Services.AddHttpClient<IClinicalSummaryGenerator, OpenAiClinicalSummaryG
 
 builder.Services.AddControllers();
 
+
+ // Issue #45: Validate Supabase Auth access tokens
+var supabaseIssuer = $"{supabaseUrl.TrimEnd('/')}/auth/v1";
+var jwksUrl = $"{supabaseIssuer}/.well-known/jwks.json";
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = true;
+        options.MapInboundClaims = false;
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = supabaseIssuer,
+
+            ValidateAudience = true,
+            ValidAudience = "authenticated",
+
+            ValidateLifetime = true,
+            RequireExpirationTime = true,
+
+            ValidateIssuerSigningKey = true,
+            RequireSignedTokens = true,
+
+            ValidAlgorithms = new[] { SecurityAlgorithms.EcdsaSha256 },
+
+            NameClaimType = "sub"
+        };
+
+        options.ConfigurationManager =
+            new ConfigurationManager<
+                Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration>(
+                jwksUrl,
+                new SupabaseJwksConfigurationRetriever(),
+                new HttpDocumentRetriever
+                {
+                    RequireHttps = true
+                });
+    });
+
+builder.Services.AddAuthorization();
+
+
+
 // Ticket 13: C# Asynchronous Patient Monitoring Engine
 builder.Services.AddHostedService<VitalSimulator>();
 //Ticket10
@@ -49,9 +97,12 @@ var app = builder.Build();
 // Configure the HTTP request pipeline
 app.UseHttpsRedirection();
 
+
 app.UseCors("AllowReactApp");
 
+app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.MapControllers();
 

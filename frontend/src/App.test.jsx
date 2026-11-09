@@ -65,10 +65,10 @@ describe('telemetry route navigation', () => {
       vi.advanceTimersByTime(5000)
     })
     expect(
-      screen.getByText(
+      screen.getAllByText(
         'Flagged as critical because SpO2 fell to 89%, crossing the minimum baseline safety threshold of 90%.',
       ),
-    ).toBeInTheDocument()
+    ).toHaveLength(2)
     expect(screen.getByRole('status')).toHaveTextContent(
       'Active critical alert evidence: 1 reason requires review.',
     )

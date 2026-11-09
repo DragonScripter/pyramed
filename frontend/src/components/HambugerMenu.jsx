@@ -33,6 +33,11 @@ function HamburgerMenu({ patientId }) {
         <ul className="hamburger-menu">
           <li>
             <Link to="/" onClick={close}>
+              Welcome Page
+            </Link>
+          </li>
+          <li>
+            <Link to="/bedside" onClick={close}>
               Live Bedside Chart
             </Link>
           </li>
@@ -65,6 +70,7 @@ function HamburgerMenu({ patientId }) {
               Demo Telemetry
             </Link>
           </li>
+
           <li>
             <Link to="/body-composition" onClick={close}>
               Body Composition Dashboard
