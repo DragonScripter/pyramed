@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import { Routes, Route, useParams } from 'react-router-dom'
-import CriticalAlarmBanner from './components/CriticalAlarmBanner'
+//import CriticalAlarmBanner from './components/CriticalAlarmBanner'
 import HamburgerMenu from './components/HambugerMenu.jsx'
 import ClinicalAnalystTerminal from './components/ClinicalAnalystTerminal'
 import LiveTelemetryCard from './components/LiveTelemetryCard'
