@@ -1,16 +1,19 @@
-import { useCallback, useState } from 'react'
-import { subscribeToPatientVitals } from './subscribeToPatientVitals'
+import { useState } from 'react'
 import { Routes, Route, useParams } from 'react-router-dom'
-import CriticalAlarmBanner from './components/CriticalAlarmBanner'
-import CdsInsightsSidebar from './components/CdsInsightsSidebar'
 import HamburgerMenu from './components/HambugerMenu.jsx'
+import ClinicalAnalystTerminal from './components/ClinicalAnalystTerminal'
 import LiveTelemetryCard from './components/LiveTelemetryCard'
 import PatientDemographicsCard from './components/PatientDemographicsCard'
 import Registration from './components/Registration'
 import PatientList from './components/PatientList'
 import ReasonTracker from './components/ReasonTracker'
+import BodyCompositionDashboard from './pages/BodyCompositionDashboard'
+import ToastContainer from './components/ToastContainer'
+import { ToastProvider } from './context/ToastProvider'
 import usePatientVitals from './hooks/usePatientVitals'
 import ActivityLog, { ActivityLogProvider } from './components/ActivityLog.jsx'
+import UserProfile from './components/UserProfile'
+import WelcomePage from './components/WelcomePage'
 import './App.css'
 
 
@@ -48,18 +51,8 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
   const patientId = id ?? defaultPatientId
   const latestPatientVital = usePatientVitals(demoTelemetry ? null : patientId)
 
-
-  const subscribeToLiveVitals = useCallback(
-  (onUpdate) => subscribeToPatientVitals(patientId, onUpdate),
-  [patientId]
-)
-
   return (
     <main className="bedside-chart">
-      <CriticalAlarmBanner
-        active={alarmState.isAlarmActive}
-        violations={alarmState.violations}
-      />
       <header className="bedside-chart__header">
         <div>
           <p className="bedside-chart__eyebrow">Clinical monitoring</p>
@@ -118,17 +111,20 @@ function App() {
   return (
     <>
      <ActivityLogProvider>
+    <ToastProvider>
       <HamburgerMenu patientId={patientId} />
 
       <Routes>
         <Route
-          path="/"
+          path="/bedside"
           element={<BedsideChart defaultPatientId={patientId} />}
         />
+        <Route path="/profile" element={<UserProfile />} />
         <Route
           path="/patients"
           element={<PatientList />}
         />
+        <Route path="/"element={<WelcomePage />} />
         <Route
           path="/patients/:id"
           element={<BedsideChart defaultPatientId={patientId} />}
@@ -150,6 +146,16 @@ function App() {
         />
 
         <Route
+          path="/body-composition"
+          element={<BodyCompositionDashboard />}
+        />
+
+        <Route
+          path="/clinical-analyst"
+          element={<ClinicalAnalystTerminal />}
+        />
+
+        <Route
           path="*"
           element={<p>Page not found</p>}
         />
@@ -157,6 +163,8 @@ function App() {
        <ActivityLog />
       </ActivityLogProvider>
     </>
+      <ToastContainer />
+    </ToastProvider>
   )
 }
 
