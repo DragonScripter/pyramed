@@ -20,6 +20,25 @@ const HIGHLIGHTS = [
   },
 ];
 
+const HOW_TO_USE_STEPS = [
+  {
+    title: "Register a simulated patient",
+    text: "Start with patient registration to create a simulated record for the hospital workflow.",
+  },
+  {
+    title: "Review patient information",
+    text: "Open the patient list and bedside chart to review demographics and the current care context.",
+  },
+  {
+    title: "Monitor live telemetry",
+    text: "Use the bedside monitor or demo telemetry stream to follow heart rate and oxygen saturation readings.",
+  },
+  {
+    title: "Respond to clinical alerts",
+    text: "Review active alerts and their evidence so you can understand which measurement crossed its safety threshold.",
+  },
+];
+
 export default function WelcomePage() {
   return (
     <div className="welcome">
@@ -41,6 +60,31 @@ export default function WelcomePage() {
             <Link to="/login" className="btn btn-primary">Log in</Link>
             <Link to="/register" className="btn btn-secondary">Register</Link>
           </div>
+        </section>
+
+        <section className="welcome-how-to" aria-labelledby="how-to-title">
+          <div className="welcome-section-heading">
+            <p className="welcome-section-eyebrow">Getting started</p>
+            <h2 id="how-to-title">How to use the simulation</h2>
+            <p>
+              Follow the hospital workflow from patient intake through vital-sign
+              monitoring and alert review.
+            </p>
+          </div>
+
+          <ol className="welcome-how-to-steps">
+            {HOW_TO_USE_STEPS.map((step, index) => (
+              <li key={step.title} className="welcome-how-to-step">
+                <span className="welcome-step-number" aria-hidden="true">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <div>
+                  <h3>{step.title}</h3>
+                  <p>{step.text}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
         </section>
 
         <section className="welcome-about" aria-labelledby="about-title">

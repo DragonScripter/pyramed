@@ -101,6 +101,82 @@
   background: rgba(255, 255, 255, 0.15);
 }
 
+/* How to use */
+.welcome-how-to {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 3.5rem 1.5rem;
+}
+
+.welcome-section-heading {
+  max-width: 44rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.welcome-section-eyebrow {
+  margin: 0 0 0.5rem;
+  color: #0b5ea8;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.welcome-section-heading h2 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+}
+
+.welcome-section-heading > p:last-child {
+  color: #3a4b5c;
+  line-height: 1.7;
+}
+
+.welcome-how-to-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 2.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.welcome-how-to-step {
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: #fff;
+  border: 1px solid #e2e9f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(16, 42, 67, 0.06);
+}
+
+.welcome-step-number {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border-radius: 50%;
+  background: #eaf3fb;
+  color: #0b5ea8;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.welcome-how-to-step h3 {
+  margin: 0 0 0.5rem;
+  color: #0b5ea8;
+  font-size: 1.05rem;
+}
+
+.welcome-how-to-step p {
+  margin: 0;
+  color: #3a4b5c;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
 /* About */
 .welcome-about {
   max-width: 64rem;
@@ -167,5 +243,27 @@
 
   .btn {
     width: 100%;
+  }
+}
+
+@media (max-width: 900px) {
+  .welcome-how-to-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .welcome-how-to {
+    padding: 2.5rem 1rem;
+  }
+
+  .welcome-how-to-steps {
+    grid-template-columns: 1fr;
+    margin-top: 2rem;
+  }
+
+  .welcome-how-to-step {
+    grid-template-columns: auto 1fr;
+    align-items: start;
   }
 }
