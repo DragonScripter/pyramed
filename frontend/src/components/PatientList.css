@@ -42,3 +42,68 @@
     padding: 1rem 0.75rem;
   }
 }
+/* Responsive patient information and triage status layout */
+
+.patient-list__row-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.patient-list__details {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.patient-list__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.patient-list__name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.patient-list__status {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Tablet and smaller screens */
+@media (max-width: 768px) {
+  .patient-list__row-content {
+    gap: 0.75rem;
+  }
+
+  .patient-list__details {
+    gap: 0.5rem;
+  }
+}
+
+/* Mobile screens */
+@media (max-width: 480px) {
+  .patient-list__row-content {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .patient-list__details {
+    width: 100%;
+  }
+
+  .patient-list__status {
+    padding-left: 0;
+  }
+}
+
