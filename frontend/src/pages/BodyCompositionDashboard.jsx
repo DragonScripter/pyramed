@@ -10,6 +10,15 @@ const TIME_RANGES = [
   { value: 'custom', label: 'Custom range' },
 ]
 
+function getLocalDateString() {
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const day = String(today.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
 function BodyCompositionDashboard() {
   const [patients, setPatients] = useState([])
   const [isPatientsLoading, setIsPatientsLoading] = useState(true)
@@ -69,6 +78,26 @@ function BodyCompositionDashboard() {
   const selectedTimeRange = TIME_RANGES.find(
     (range) => range.value === timeRange,
   )
+  const today = getLocalDateString()
+  const customRangeError = useMemo(() => {
+    if (timeRange !== 'custom') {
+      return null
+    }
+
+    if (!customStartDate || !customEndDate) {
+      return 'Choose both a start date and an end date.'
+    }
+
+    if (customStartDate > today || customEndDate > today) {
+      return 'Custom range dates cannot be in the future.'
+    }
+
+    if (customStartDate > customEndDate) {
+      return 'Start date must be on or before the end date.'
+    }
+
+    return null
+  }, [customEndDate, customStartDate, timeRange, today])
 
   const handlePatientChange = (event) => {
     setSelectedPatientId(event.target.value)
@@ -87,6 +116,7 @@ function BodyCompositionDashboard() {
   }
 
   const patientControlDisabled = isPatientsLoading || Boolean(patientLoadError) || patients.length === 0
+  const isRequestReady = Boolean(selectedPatient) && !customRangeError
 
   return (
     <main
@@ -160,6 +190,10 @@ function BodyCompositionDashboard() {
                 type="date"
                 value={customStartDate}
                 onChange={handleCustomStartDateChange}
+                max={today}
+                required
+                aria-invalid={Boolean(customRangeError)}
+                aria-describedby={customRangeError ? 'body-composition-date-error' : undefined}
               />
             </label>
 
@@ -173,14 +207,28 @@ function BodyCompositionDashboard() {
                 type="date"
                 value={customEndDate}
                 onChange={handleCustomEndDateChange}
+                min={customStartDate || undefined}
+                max={today}
+                required
+                aria-invalid={Boolean(customRangeError)}
+                aria-describedby={customRangeError ? 'body-composition-date-error' : undefined}
               />
             </label>
           </div>
         )}
+        {customRangeError && (
+          <p
+            id="body-composition-date-error"
+            className="body-composition-dashboard__date-error"
+            role="alert"
+          >
+            {customRangeError}
+          </p>
+        )}
         <p className="body-composition-dashboard__filter-hint">
           {patientLoadError ??
             (selectedPatient
-              ? `Ready to request body composition for ${selectedPatient.name} over ${selectedTimeRange.label}.`
+              ? customRangeError ?? `Ready to request body composition for ${selectedPatient.name} over ${selectedTimeRange.label}.`
               : 'Select a patient to prepare a body composition request.')}
         </p>
       </section>
@@ -192,6 +240,7 @@ function BodyCompositionDashboard() {
         data-time-range={requestParameters.timeRange}
         data-start-date={requestParameters.startDate ?? ''}
         data-end-date={requestParameters.endDate ?? ''}
+        data-request-ready={isRequestReady}
       >
         <section
           className="body-composition-dashboard__summary-panel"

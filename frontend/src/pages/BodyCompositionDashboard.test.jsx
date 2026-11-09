@@ -112,5 +112,44 @@ describe('Body Composition Dashboard navigation', () => {
     expect(
       screen.getByLabelText('Body composition analysis results'),
     ).toHaveAttribute('data-end-date', '2026-10-31')
+    expect(
+      screen.getByLabelText('Body composition analysis results'),
+    ).toHaveAttribute('data-request-ready', 'false')
+  })
+
+  it('validates required, ordered, and non-future custom range dates', async () => {
+    render(<BodyCompositionDashboard />)
+
+    await screen.findByRole('option', { name: 'Sam Taylor' })
+    fireEvent.change(screen.getByLabelText('Patient'), {
+      target: { value: 'patient-2' },
+    })
+    fireEvent.change(screen.getByLabelText('Time range'), {
+      target: { value: 'custom' },
+    })
+
+    const startDate = screen.getByLabelText('Start date')
+    const endDate = screen.getByLabelText('End date')
+
+    expect(
+      screen.getByRole('alert'),
+    ).toHaveTextContent('Choose both a start date and an end date.')
+
+    fireEvent.change(startDate, { target: { value: '2026-10-31' } })
+    fireEvent.change(endDate, { target: { value: '2026-10-01' } })
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Start date must be on or before the end date.',
+    )
+
+    fireEvent.change(startDate, { target: { value: '2099-01-01' } })
+    fireEvent.change(endDate, { target: { value: '2099-01-02' } })
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Custom range dates cannot be in the future.',
+    )
+    expect(
+      screen.getByLabelText('Body composition analysis results'),
+    ).toHaveAttribute('data-request-ready', 'false')
   })
 })
