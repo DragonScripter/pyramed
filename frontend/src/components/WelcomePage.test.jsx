@@ -1,10 +1,12 @@
 // @vitest-environment jsdom
 
 import '@testing-library/jest-dom/vitest'
-import { render, screen } from '@testing-library/react'
+import { cleanup, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import WelcomePage from './WelcomePage'
+
+afterEach(cleanup)
 
 describe('WelcomePage', () => {
   it('renders the ordered simulation walkthrough', () => {
@@ -25,5 +27,23 @@ describe('WelcomePage', () => {
     expect(
       screen.getByRole('heading', { name: 'Respond to clinical alerts' }),
     ).toBeInTheDocument()
+  })
+
+  it('renders team credits with names and responsibilities', () => {
+    render(
+      <MemoryRouter>
+        <WelcomePage />
+      </MemoryRouter>,
+    )
+
+    expect(
+      screen.getByRole('heading', { name: 'Built by a multidisciplinary team' }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Jude Ma' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'Gloria Ojiebun' }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Yena Hong' })).toBeInTheDocument()
+    expect(screen.getByText('Project Lead, DevOps & QA Lead')).toBeInTheDocument()
   })
 })

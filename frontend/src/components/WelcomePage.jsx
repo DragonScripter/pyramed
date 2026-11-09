@@ -39,6 +39,27 @@ const HOW_TO_USE_STEPS = [
   },
 ];
 
+const TEAM_MEMBERS = [
+  {
+    name: "Jude Ma",
+    initials: "JM",
+    role: "Project Lead, DevOps & QA Lead",
+    focus: "Infrastructure, routing, security middleware, and audit logging.",
+  },
+  {
+    name: "Gloria Ojiebun",
+    initials: "GO",
+    role: "Full-Stack Engineer & Cloud Developer",
+    focus: "Patient registration, information aggregation, and vital simulation.",
+  },
+  {
+    name: "Yena Hong",
+    initials: "YH",
+    role: "Full-Stack, QA & Cloud Developer",
+    focus: "Provider dashboards, clinical decision support, and alert experiences.",
+  },
+];
+
 export default function WelcomePage() {
   return (
     <div className="welcome">
@@ -112,6 +133,30 @@ export default function WelcomePage() {
             experimentation. All patients and data are simulated, and it is not
             a medical device or a tool for real clinical decisions.
           </p>
+        </section>
+
+        <section className="welcome-team" aria-labelledby="team-title">
+          <div className="welcome-section-heading">
+            <p className="welcome-section-eyebrow">Team</p>
+            <h2 id="team-title">Built by a multidisciplinary team</h2>
+            <p>
+              PyraMed brings together product, engineering, cloud, and quality
+              assurance expertise to model connected hospital operations.
+            </p>
+          </div>
+
+          <div className="welcome-team-members">
+            {TEAM_MEMBERS.map((member) => (
+              <article key={member.name} className="welcome-team-card">
+                <span className="welcome-team-avatar" aria-hidden="true">
+                  {member.initials}
+                </span>
+                <h3>{member.name}</h3>
+                <p className="welcome-team-role">{member.role}</p>
+                <p>{member.focus}</p>
+              </article>
+            ))}
+          </div>
         </section>
       </main>
     </div>
