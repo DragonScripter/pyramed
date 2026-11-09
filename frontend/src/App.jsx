@@ -7,6 +7,7 @@ import PatientDemographicsCard from './components/PatientDemographicsCard'
 import Registration from './components/Registration'
 import PatientList from './components/PatientList'
 import ReasonTracker from './components/ReasonTracker'
+import BodyCompositionDashboard from './pages/BodyCompositionDashboard'
 import ToastContainer from './components/ToastContainer'
 import { ToastProvider } from './context/ToastProvider'
 import usePatientVitals from './hooks/usePatientVitals'
@@ -137,6 +138,11 @@ function App() {
               demoTelemetry={true}
             />
           }
+        />
+
+        <Route
+          path="/body-composition"
+          element={<BodyCompositionDashboard />}
         />
 
         <Route
