@@ -70,6 +70,7 @@ function HamburgerMenu({ patientId }) {
               Demo Telemetry
             </Link>
           </li>
+
           <li>
             <Link to="/clinical-analyst" onClick={close}>
               Clinical Analyst Terminal

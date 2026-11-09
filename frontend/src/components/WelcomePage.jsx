@@ -134,6 +134,10 @@ export default function WelcomePage() {
             a medical device or a tool for real clinical decisions.
           </p>
         </section>
+      </main>
+    </div>
+  );
+}
 
         <section className="welcome-team" aria-labelledby="team-title">
           <div className="welcome-section-heading">
