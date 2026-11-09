@@ -65,6 +65,11 @@ function HamburgerMenu({ patientId }) {
               Demo Telemetry
             </Link>
           </li>
+          <li>
+            <Link to="/body-composition" onClick={close}>
+              Body Composition Dashboard
+            </Link>
+          </li>
         </ul>
       )}
     </nav>
