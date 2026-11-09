@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Routes, Route, useParams } from 'react-router-dom'
-import CriticalAlarmBanner from './components/CriticalAlarmBanner'
 import HamburgerMenu from './components/HambugerMenu.jsx'
 import ClinicalAnalystTerminal from './components/ClinicalAnalystTerminal'
 import LiveTelemetryCard from './components/LiveTelemetryCard'
@@ -8,6 +7,8 @@ import PatientDemographicsCard from './components/PatientDemographicsCard'
 import Registration from './components/Registration'
 import PatientList from './components/PatientList'
 import ReasonTracker from './components/ReasonTracker'
+import ToastContainer from './components/ToastContainer'
+import { ToastProvider } from './context/ToastProvider'
 import usePatientVitals from './hooks/usePatientVitals'
 import './App.css'
 
@@ -48,10 +49,6 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
 
   return (
     <main className="bedside-chart">
-      <CriticalAlarmBanner
-        active={alarmState.isAlarmActive}
-        violations={alarmState.violations}
-      />
       <header className="bedside-chart__header">
         <div>
           <p className="bedside-chart__eyebrow">Clinical monitoring</p>
@@ -108,7 +105,7 @@ function App() {
   )
 
   return (
-    <>
+    <ToastProvider>
       <HamburgerMenu patientId={patientId} />
 
       <Routes>
@@ -150,7 +147,8 @@ function App() {
           element={<p>Page not found</p>}
         />
       </Routes>
-    </>
+      <ToastContainer />
+    </ToastProvider>
   )
 }
 
