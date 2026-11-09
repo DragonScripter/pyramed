@@ -67,7 +67,8 @@
   font-weight: 700;
 }
 
-.body-composition-dashboard__field select {
+.body-composition-dashboard__field select,
+.body-composition-dashboard__field input {
   width: 100%;
   min-height: 42px;
   padding: 8px 12px;
@@ -78,9 +79,17 @@
   font: inherit;
 }
 
-.body-composition-dashboard__field select:disabled {
+.body-composition-dashboard__field select:disabled,
+.body-composition-dashboard__field input:disabled {
   cursor: not-allowed;
   opacity: 0.7;
+}
+
+.body-composition-dashboard__custom-range {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
 }
 
 .body-composition-dashboard__filter-hint {
@@ -142,6 +151,10 @@
   }
 
   .body-composition-dashboard__filter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .body-composition-dashboard__custom-range {
     grid-template-columns: 1fr;
   }
 }
