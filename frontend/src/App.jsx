@@ -11,6 +11,7 @@ import BodyCompositionDashboard from './pages/BodyCompositionDashboard'
 import ToastContainer from './components/ToastContainer'
 import { ToastProvider } from './context/ToastProvider'
 import usePatientVitals from './hooks/usePatientVitals'
+import UserProfile from './components/UserProfile'
 import WelcomePage from './components/WelcomePage'
 import './App.css'
 
@@ -115,6 +116,7 @@ function App() {
           path="/bedside"
           element={<BedsideChart defaultPatientId={patientId} />}
         />
+        <Route path="/profile" element={<UserProfile />} />
         <Route
           path="/patients"
           element={<PatientList />}
