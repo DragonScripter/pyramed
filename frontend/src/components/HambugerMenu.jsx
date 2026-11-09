@@ -71,6 +71,11 @@ function HamburgerMenu({ patientId }) {
             </Link>
           </li>
 
+          <li>
+            <Link to="/clinical-analyst" onClick={close}>
+              Clinical Analyst Terminal
+            </Link>
+          </li>
         </ul>
       )}
     </nav>

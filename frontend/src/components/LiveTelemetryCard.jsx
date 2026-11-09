@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Card, CardContent, Typography } from '@mui/material';
-import { evaluateCriticalAlerts } from './alertEvidence';
+import { evaluateCriticalAlerts, formatAlertReason } from './alertEvidence';
+import { useToast } from '../context/useToast';
 
 const formatVital = (value) => value ?? '--';
 const toNumericVital = (value) => {
@@ -76,8 +77,10 @@ const VitalTrend = ({ label, readings, field, color }) => {
 
 const LiveTelemetryCard = ({ subscribeToVitals, vitalUpdate, onAlarmChange }) => {
 	const currentVitalsRef = useRef({ heartRate: null, spO2: null });
+	const activeAlertMetricsRef = useRef(new Set());
 	const [vitals, setVitals] = useState({ heartRate: null, spO2: null });
 	const [vitalsData, setVitalsData] = useState([]);
+	const { addToast } = useToast();
 
 	const handleVitalsUpdate = useCallback((payload) => {
 		const update = payload?.new ?? payload;
@@ -119,11 +122,23 @@ const LiveTelemetryCard = ({ subscribeToVitals, vitalUpdate, onAlarmChange }) =>
 		}
 
 		const violations = evaluateCriticalAlerts(nextVitals);
+		const activeMetrics = new Set(violations.map((violation) => violation.metric));
+
+		violations
+			.filter((violation) => !activeAlertMetricsRef.current.has(violation.metric))
+			.forEach((violation) => {
+				addToast({
+					message: formatAlertReason(violation),
+					severity: 'critical',
+				});
+			});
+
+		activeAlertMetricsRef.current = activeMetrics;
 		onAlarmChange?.({
 			isAlarmActive: violations.length > 0,
 			violations,
 		});
-	}, [onAlarmChange]);
+	}, [addToast, onAlarmChange]);
 
 	useEffect(() => {
 		if (!subscribeToVitals) {

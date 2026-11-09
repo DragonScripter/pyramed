@@ -5,7 +5,16 @@ import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import LiveTelemetryCard from './LiveTelemetryCard';
 
-afterEach(cleanup);
+const { addToast } = vi.hoisted(() => ({ addToast: vi.fn() }));
+
+vi.mock('../context/useToast', () => ({
+	useToast: () => ({ addToast }),
+}));
+
+afterEach(() => {
+	cleanup();
+	addToast.mockClear();
+});
 
 const createVitalsStream = () => {
 	let onUpdate;
@@ -67,8 +76,14 @@ describe('LiveTelemetryCard', () => {
 		expect(onAlarmChange).toHaveBeenLastCalledWith({
 			isAlarmActive: true,
 			violations: [
-				{ metric: 'SpO2', value: 88, unit: '%' },
-				{ metric: 'HR', value: 130, unit: 'bpm' },
+				{
+					metric: 'SpO2', vitalName: 'SpO2', value: 88, unit: '%',
+					threshold: 90, comparison: 'below', severity: 'critical',
+				},
+				{
+					metric: 'HR', vitalName: 'Heart rate', value: 130, unit: 'bpm',
+					threshold: 120, comparison: 'above', severity: 'critical',
+				},
 			],
 		});
 	});
@@ -86,7 +101,10 @@ describe('LiveTelemetryCard', () => {
 		expect(screen.getByText('97')).toBeInTheDocument();
 		expect(onAlarmChange).toHaveBeenLastCalledWith({
 			isAlarmActive: true,
-			violations: [{ metric: 'HR', value: 121, unit: 'bpm' }],
+			violations: [{
+				metric: 'HR', vitalName: 'Heart rate', value: 121, unit: 'bpm',
+				threshold: 120, comparison: 'above', severity: 'critical',
+			}],
 		});
 	});
 	
@@ -189,6 +207,25 @@ describe('LiveTelemetryCard', () => {
 				threshold: 120, comparison: 'above', severity: 'critical',
 			}],
 		});
+	});
+
+	it('creates a toast only when a vital first enters a critical state', async () => {
+		const stream = createVitalsStream();
+		render(<LiveTelemetryCard subscribeToVitals={stream.subscribeToVitals} />);
+
+		await act(async () => stream.emit({ heartRate: 72, spO2: 89 }));
+		await act(async () => stream.emit({ heartRate: 72, spO2: 88 }));
+
+		expect(addToast).toHaveBeenCalledTimes(1);
+		expect(addToast).toHaveBeenCalledWith({
+			message: 'Flagged as critical because SpO2 fell to 89%, crossing the minimum baseline safety threshold of 90%.',
+			severity: 'critical',
+		});
+
+		await act(async () => stream.emit({ spO2: 90 }));
+		await act(async () => stream.emit({ spO2: 89 }));
+
+		expect(addToast).toHaveBeenCalledTimes(2);
 	});
 
 	it('unsubscribes when the component unmounts', () => {
