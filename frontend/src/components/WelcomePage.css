@@ -1,0 +1,329 @@
+.welcome {
+  min-height: 100vh;
+  color: #1b2a3a;
+  background: #f5f8fb;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.welcome-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: #fff;
+  border-bottom: 1px solid #e2e9f0;
+}
+
+.welcome-brand {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0b5ea8;
+  letter-spacing: 0.02em;
+}
+
+.welcome-nav-link {
+  color: #0b5ea8;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.welcome-nav-link:hover {
+  text-decoration: underline;
+}
+
+/* Hero */
+.welcome-hero {
+  text-align: center;
+  padding: 4rem 1.5rem 3.5rem;
+  background: linear-gradient(135deg, #0b5ea8 0%, #0a8f9c 100%);
+  color: #fff;
+}
+
+.welcome-hero h1 {
+  margin: 0 0 1rem;
+  font-size: clamp(2.25rem, 6vw, 3.75rem);
+  line-height: 1.1;
+}
+
+.welcome-tagline {
+  max-width: 40rem;
+  margin: 0 auto 2rem;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  line-height: 1.5;
+  opacity: 0.95;
+}
+
+.welcome-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.btn {
+  display: inline-block;
+  min-width: 9rem;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  border: 2px solid transparent;
+  transition: transform 0.1s ease, background 0.15s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:focus-visible,
+.welcome-nav-link:focus-visible {
+  outline: 3px solid #ffd166;
+  outline-offset: 2px;
+}
+
+.btn-primary {
+  background: #fff;
+  color: #0b5ea8;
+}
+
+.btn-primary:hover {
+  background: #eaf3fb;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #fff;
+  border-color: #fff;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* How to use */
+.welcome-how-to {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 3.5rem 1.5rem;
+}
+
+.welcome-section-heading {
+  max-width: 44rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.welcome-section-eyebrow {
+  margin: 0 0 0.5rem;
+  color: #0b5ea8;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.welcome-section-heading h2 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+}
+
+.welcome-section-heading > p:last-child {
+  color: #3a4b5c;
+  line-height: 1.7;
+}
+
+.welcome-how-to-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 2.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.welcome-how-to-step {
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: #fff;
+  border: 1px solid #e2e9f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(16, 42, 67, 0.06);
+}
+
+.welcome-step-number {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border-radius: 50%;
+  background: #eaf3fb;
+  color: #0b5ea8;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.welcome-how-to-step h3 {
+  margin: 0 0 0.5rem;
+  color: #0b5ea8;
+  font-size: 1.05rem;
+}
+
+.welcome-how-to-step p {
+  margin: 0;
+  color: #3a4b5c;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* About */
+.welcome-about {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 3.5rem 1.5rem 4rem;
+}
+
+.welcome-about h2 {
+  margin: 0 0 1rem;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  text-align: center;
+}
+
+.welcome-about-intro {
+  max-width: 44rem;
+  margin: 0 auto 2.5rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  text-align: center;
+  color: #3a4b5c;
+}
+
+.welcome-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1.25rem;
+}
+
+.welcome-card {
+  padding: 1.5rem;
+  background: #fff;
+  border: 1px solid #e2e9f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(16, 42, 67, 0.06);
+}
+
+.welcome-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  color: #0b5ea8;
+}
+
+.welcome-card p {
+  margin: 0;
+  line-height: 1.6;
+  color: #3a4b5c;
+}
+
+.welcome-scope {
+  max-width: 44rem;
+  margin: 2.5rem auto 0;
+  padding: 1rem 1.25rem;
+  background: #fff8e6;
+  border-left: 4px solid #f2b705;
+  border-radius: 6px;
+  line-height: 1.6;
+  color: #4a3b00;
+}
+
+/* Team */
+.welcome-team {
+  padding: 3.5rem 1.5rem 4rem;
+  background: #eaf3fb;
+}
+
+.welcome-team-members {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1.25rem;
+  max-width: 64rem;
+  margin: 2.5rem auto 0;
+}
+
+.welcome-team-card {
+  min-width: 0;
+  padding: 1.5rem;
+  background: #fff;
+  border: 1px solid #d6e4ef;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(16, 42, 67, 0.06);
+  text-align: center;
+}
+
+.welcome-team-avatar {
+  display: grid;
+  width: 3.25rem;
+  height: 3.25rem;
+  place-items: center;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  background: #0b5ea8;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.welcome-team-card h3 {
+  margin: 0;
+  color: #1b2a3a;
+  font-size: 1.15rem;
+}
+
+.welcome-team-card p {
+  margin: 0.75rem 0 0;
+  color: #3a4b5c;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.welcome-team-card .welcome-team-role {
+  color: #0b5ea8;
+  font-weight: 700;
+}
+
+@media (max-width: 480px) {
+  .welcome-hero {
+    padding: 3rem 1rem 2.5rem;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 900px) {
+  .welcome-how-to-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .welcome-how-to {
+    padding: 2.5rem 1rem;
+  }
+
+  .welcome-team {
+    padding: 2.5rem 1rem;
+  }
+
+  .welcome-how-to-steps {
+    grid-template-columns: 1fr;
+    margin-top: 2rem;
+  }
+
+  .welcome-how-to-step {
+    grid-template-columns: auto 1fr;
+    align-items: start;
+  }
+}
