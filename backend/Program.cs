@@ -20,6 +20,7 @@ builder.Services.AddScoped(provider =>
         }));
 
 builder.Services.AddScoped<ClinicalRules>();
+builder.Services.AddScoped<OperationsMetricsService>();
 builder.Services.AddHttpClient<IClinicalSummaryGenerator, OpenAiClinicalSummaryGenerator>(client =>
 {
     client.Timeout = TimeSpan.FromSeconds(5);

@@ -70,6 +70,11 @@ function HamburgerMenu({ patientId }) {
               Body Composition Dashboard
             </Link>
           </li>
+          <li>
+            <Link to="/clinical-analyst" onClick={close}>
+              Clinical Analyst Terminal
+            </Link>
+          </li>
         </ul>
       )}
     </nav>
