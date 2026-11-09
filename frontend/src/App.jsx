@@ -11,6 +11,7 @@ import BodyCompositionDashboard from './pages/BodyCompositionDashboard'
 import ToastContainer from './components/ToastContainer'
 import { ToastProvider } from './context/ToastProvider'
 import usePatientVitals from './hooks/usePatientVitals'
+import ActivityLog, { ActivityLogProvider } from './components/ActivityLog.jsx'
 import UserProfile from './components/UserProfile'
 import WelcomePage from './components/WelcomePage'
 import './App.css'
@@ -108,6 +109,8 @@ function App() {
   )
 
   return (
+    <>
+     <ActivityLogProvider>
     <ToastProvider>
       <HamburgerMenu patientId={patientId} />
 
@@ -157,6 +160,9 @@ function App() {
           element={<p>Page not found</p>}
         />
       </Routes>
+       <ActivityLog />
+      </ActivityLogProvider>
+    </>
       <ToastContainer />
     </ToastProvider>
   )
