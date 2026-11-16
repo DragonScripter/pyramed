@@ -16,6 +16,8 @@ import useAlertEventBridge from './hooks/useAlertEventBridge'
 import ActivityLog, { ActivityLogProvider } from './components/ActivityLog.jsx'
 import UserProfile from './components/UserProfile'
 import WelcomePage from './components/WelcomePage'
+import CdsInsightsSidebar from './components/CdsInsightsSidebar'
+import useCdsEvaluation from './hooks/useCdsEvaluation'
 import './App.css'
 
 
@@ -65,7 +67,7 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
   // Use the URL ID, or fall back to the default patient ID
   const patientId = id ?? defaultPatientId
   const latestPatientVital = usePatientVitals(demoTelemetry ? null : patientId)
-
+  const { evaluation } = useCdsEvaluation(demoTelemetry ? null : patientId)
   return (
     <main className="bedside-chart">
       <header className="bedside-chart__header">
@@ -109,6 +111,12 @@ function BedsideChart({ defaultPatientId, demoTelemetry = false }) {
             violations={alarmState.violations}
           />
         </div>
+      </section>
+       <section
+        className="bedside-chart__cds"
+        aria-label="Clinical decision support"
+      >
+        <CdsInsightsSidebar evaluation={evaluation} />
       </section>
     </main>
   )

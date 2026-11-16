@@ -64,16 +64,7 @@
   font-size: 14px;
   line-height: 1.6;
 }
-
-@media (max-width: 640px) {
-  .cds-sidebar {
-    padding: 16px;
-  }
-
-  .cds-sidebar__header h2 {
-    font-size: 18px;
-  }
-  .cds-sidebar__risk {
+.cds-sidebar__risk {
   padding: 16px;
   border-radius: 8px;
   background: var(--accent-bg);
@@ -103,4 +94,13 @@
   font-weight: 600;
   line-height: 1.5;
 }
+
+@media (max-width: 640px) {
+  .cds-sidebar {
+    padding: 16px;
+  }
+
+  .cds-sidebar__header h2 {
+    font-size: 18px;
+  }
 }
