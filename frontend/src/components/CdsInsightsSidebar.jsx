@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
+
 import './CdsInsightsSidebar.css';
+
+
 
 function CdsInsightsSidebar({ evaluation = null }) {
   const [isExpanded, setIsExpanded] = useState(true);
