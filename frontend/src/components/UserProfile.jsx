@@ -1,19 +1,50 @@
 import { useEffect, useState } from "react";
+import { apiFetch } from "../api";
+import { supabase } from "../supabaseClient";
 
-// --- Temporary mock "API" (swap for fetch("/api/users/me") when Ojie's endpoints land) ---
-let mockUser = {
-  id: "1",
-  name: "Test User",
-  email: "test@example.com",
-  role: "Registered User",
-  avatarUrl: "",
+async function readError(res) {
+  const body = await res.json().catch(() => null);
+  return body?.message ?? `Request failed (${res.status})`;
+}
+
+// email comes from the Supabase session.
+async function toUser(profile) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  return {
+    id: profile.id,
+    name: profile.fullName ?? "",
+    email: session?.user?.email ?? "",
+    role: profile.role ?? "",
+    avatarUrl: profile.avatarUrl ?? "",
+  };
+}
+
+const getMe = async () => {
+  const res = await apiFetch("/api/users/me");
+  if (res.status === 401) throw new Error("Please sign in to view your profile.");
+  if (!res.ok) throw new Error(await readError(res));
+  return toUser(await res.json());
 };
-const delay = (ms) => new Promise((r) => setTimeout(r, ms));
-const getMe = async () => { await delay(300); return { ...mockUser }; };
-const updateMe = async (data) => {
-  await delay(300);
-  mockUser = { ...mockUser, name: data.name, email: data.email };
-  return { ...mockUser };
+
+const updateMe = async ({ name, password }) => {
+  const res = await apiFetch("/api/users/me", {
+    method: "PUT",
+    body: JSON.stringify({ fullName: name }),
+  });
+  if (res.status === 401) throw new Error("Your session has expired. Please sign in again.");
+  if (!res.ok) throw new Error(await readError(res));
+  const updated = await res.json();
+
+  // Passwords are managed by Supabase Auth, not the backend.
+  if (password) {
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) throw new Error(error.message);
+  }
+
+  return toUser(updated);
 };
 
 // --- Validation ---
@@ -116,8 +147,8 @@ export default function UserProfile() {
           {errors.name && <span className="field-error">{errors.name}</span>}
 
           <label>
-            Email
-            <input name="email" type="email" value={form.email} onChange={handleChange} />
+            Email (managed by your account)
+            <input name="email" type="email" value={form.email} disabled />
           </label>
           {errors.email && <span className="field-error">{errors.email}</span>}
 
