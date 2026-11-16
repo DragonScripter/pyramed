@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
+import useBodyComposition from '../hooks/useBodyComposition'
+import BodyCompositionResults from '../components/BodyCompositionResults'
 import './BodyCompositionDashboard.css'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
@@ -17,6 +19,17 @@ function getLocalDateString() {
   const day = String(today.getDate()).padStart(2, '0')
 
   return `${year}-${month}-${day}`
+}
+function getPresetRange(timeRange) {
+  const start = new Date()
+  if (timeRange === '7d') start.setDate(start.getDate() - 7)
+  else if (timeRange === '30d') start.setDate(start.getDate() - 30)
+  else if (timeRange === '1y') start.setFullYear(start.getFullYear() - 1)
+  const pad = (n) => String(n).padStart(2, '0')
+  return {
+    from: `${start.getFullYear()}-${pad(start.getMonth() + 1)}-${pad(start.getDate())}`,
+    to: getLocalDateString(),
+  }
 }
 
 function BodyCompositionDashboard() {
@@ -117,7 +130,19 @@ function BodyCompositionDashboard() {
 
   const patientControlDisabled = isPatientsLoading || Boolean(patientLoadError) || patients.length === 0
   const isRequestReady = Boolean(selectedPatient) && !customRangeError
+  const { from, to } = useMemo(
+    () =>
+      timeRange === 'custom'
+        ? { from: customStartDate, to: customEndDate }
+        : getPresetRange(timeRange),
+    [timeRange, customStartDate, customEndDate],
+  )
 
+  const { data, loading, error, retry } = useBodyComposition(
+    isRequestReady ? selectedPatientId : null,
+    from,
+    to,
+  )
   return (
     <main
       className="body-composition-dashboard"
@@ -233,7 +258,7 @@ function BodyCompositionDashboard() {
         </p>
       </section>
 
-      <section
+            <section
         className="body-composition-dashboard__content"
         aria-label="Body composition analysis results"
         data-patient-id={requestParameters.patientId}
@@ -242,25 +267,18 @@ function BodyCompositionDashboard() {
         data-end-date={requestParameters.endDate ?? ''}
         data-request-ready={isRequestReady}
       >
-        <section
-          className="body-composition-dashboard__summary-panel"
-          aria-labelledby="body-composition-summary-title"
-        >
-          <p className="body-composition-dashboard__section-label">Summary</p>
-          <h2 id="body-composition-summary-title">Composition overview</h2>
-          <p>Summary metric cards will appear here.</p>
-        </section>
-
-        <section
-          className="body-composition-dashboard__trend-panel"
-          aria-labelledby="body-composition-trends-title"
-        >
-          <p className="body-composition-dashboard__section-label">Trends</p>
-          <h2 id="body-composition-trends-title">Body composition trends</h2>
-          <div className="body-composition-dashboard__chart-placeholder">
-            Trend chart will appear here.
-          </div>
-        </section>
+        {isRequestReady ? (
+          <BodyCompositionResults
+            data={data}
+            loading={loading}
+            error={error}
+            onRetry={retry}
+          />
+        ) : (
+          <p className="body-composition-dashboard__filter-hint">
+            Select a patient{timeRange === 'custom' ? ' and a valid date range' : ''} to view results.
+          </p>
+        )}
       </section>
     </main>
   )
