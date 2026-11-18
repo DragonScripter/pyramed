@@ -20,5 +20,8 @@ namespace PyraMed.Api.Models
 
         [Column("created_at", ignoreOnInsert: true, ignoreOnUpdate: true)]
         public DateTime CreatedAt { get; set; }
+
+        [Column("avatar_url")]
+        public string? AvatarUrl { get; set; }
     }
 }
