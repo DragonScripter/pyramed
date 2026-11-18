@@ -94,6 +94,21 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+//testing for ticket 49
+// if (app.Environment.IsDevelopment())
+// {
+//     app.Use(async (ctx, next) =>
+//     {
+//         if (ctx.Request.Headers.TryGetValue("X-Dev-Role", out var role))
+//         {
+//             ctx.User = new System.Security.Claims.ClaimsPrincipal(
+//                 new System.Security.Claims.ClaimsIdentity(
+//                     new[] { new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, role.ToString()) },
+//                     "dev"));
+//         }
+//         await next();
+//     });
+// }
 
 // Configure the HTTP request pipeline
 app.UseHttpsRedirection();
