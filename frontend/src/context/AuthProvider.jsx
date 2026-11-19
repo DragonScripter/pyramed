@@ -1,0 +1,113 @@
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { getCurrentUser, login as loginRequest, logout as logoutRequest } from '../auth/authApi'
+import {
+  clearAccessToken,
+  setAccessToken,
+  setUnauthorizedHandler,
+} from '../auth/authSession'
+import { AuthContext } from './authContext'
+
+const emptySession = {
+  user: null,
+  token: null,
+  expiresAt: null,
+}
+
+function getExpiryTime(expiresAt) {
+  const expiryTime = Date.parse(expiresAt)
+  return Number.isNaN(expiryTime) ? null : expiryTime
+}
+
+export function AuthProvider({ children }) {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [session, setSession] = useState(emptySession)
+  const [isLoading, setIsLoading] = useState(false)
+
+  const clearSession = useCallback(
+    ({ redirect = false } = {}) => {
+      clearAccessToken()
+      setSession(emptySession)
+
+      if (redirect && location.pathname !== '/login') {
+        navigate('/login', {
+          replace: true,
+          state: { from: `${location.pathname}${location.search}` },
+        })
+      }
+    },
+    [location.pathname, location.search, navigate],
+  )
+
+  useEffect(() => setUnauthorizedHandler(() => clearSession({ redirect: true })), [clearSession])
+
+  const login = useCallback(
+    async ({ email, password }) => {
+      setIsLoading(true)
+
+      try {
+        const loginResult = await loginRequest({ email, password })
+        const expiryTime = getExpiryTime(loginResult.expiresAt)
+
+        if (!expiryTime || expiryTime <= Date.now()) {
+          throw new Error('The server returned an expired login session.')
+        }
+
+        setAccessToken(loginResult.accessToken)
+        const profile = await getCurrentUser()
+        const user = { ...loginResult.user, ...profile }
+
+        setSession({
+          user,
+          token: loginResult.accessToken,
+          expiresAt: loginResult.expiresAt,
+        })
+
+        return user
+      } catch (error) {
+        clearSession()
+        throw error
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [clearSession],
+  )
+
+  const logout = useCallback(async () => {
+    try {
+      await logoutRequest()
+    } finally {
+      clearSession({ redirect: true })
+    }
+  }, [clearSession])
+
+  const expiryTime = getExpiryTime(session.expiresAt)
+
+  useEffect(() => {
+    if (!expiryTime) return undefined
+
+    const timeoutId = window.setTimeout(
+      () => clearSession({ redirect: true }),
+      Math.max(0, expiryTime - Date.now()),
+    )
+
+    return () => window.clearTimeout(timeoutId)
+  }, [clearSession, expiryTime])
+
+  const value = useMemo(
+    () => ({
+      user: session.user,
+      token: session.token,
+      expiresAt: session.expiresAt,
+      isLoading,
+      isAuthenticated: Boolean(session.user && session.token),
+      login,
+      logout,
+    }),
+    [isLoading, login, logout, session],
+  )
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+}
