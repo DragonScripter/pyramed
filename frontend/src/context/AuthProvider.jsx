@@ -83,6 +83,17 @@ export function AuthProvider({ children }) {
     }
   }, [clearSession])
 
+  const updateUser = useCallback((updates) => {
+    setSession((current) => {
+      if (!current.user) return current
+
+      return {
+        ...current,
+        user: { ...current.user, ...updates },
+      }
+    })
+  }, [])
+
   const expiryTime = getExpiryTime(session.expiresAt)
 
   useEffect(() => {
@@ -105,8 +116,9 @@ export function AuthProvider({ children }) {
       isAuthenticated: Boolean(session.user && session.token),
       login,
       logout,
+      updateUser,
     }),
-    [isLoading, login, logout, session],
+    [isLoading, login, logout, session, updateUser],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

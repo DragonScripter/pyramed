@@ -21,18 +21,22 @@ vi.mock('../auth/authApi', () => ({
 }))
 
 function AuthControls() {
-  const { isAuthenticated, isLoading, login, logout, user } = useAuth()
+  const { isAuthenticated, isLoading, login, logout, updateUser, user } = useAuth()
 
   return (
     <>
       <output data-testid="authenticated">{String(isAuthenticated)}</output>
       <output data-testid="loading">{String(isLoading)}</output>
       <output data-testid="role">{user?.role ?? 'none'}</output>
+      <output data-testid="name">{user?.fullName ?? 'none'}</output>
       <button type="button" onClick={() => login({ email: 'user@example.com', password: 'secret' })}>
         Sign in
       </button>
       <button type="button" onClick={() => logout()}>
         Sign out
+      </button>
+      <button type="button" onClick={() => updateUser({ fullName: 'Updated Nurse' })}>
+        Update name
       </button>
     </>
   )
@@ -112,5 +116,17 @@ describe('AuthProvider', () => {
     await waitFor(() => expect(screen.getByTestId('authenticated')).toHaveTextContent('false'))
     expect(screen.getByTestId('path')).toHaveTextContent('/login')
     expect(getAccessToken()).toBeNull()
+  })
+
+  it('merges profile updates into the authenticated user', async () => {
+    mockLogin()
+    renderProvider()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }))
+    await waitFor(() => expect(screen.getByTestId('authenticated')).toHaveTextContent('true'))
+    fireEvent.click(screen.getByRole('button', { name: 'Update name' }))
+
+    expect(screen.getByTestId('name')).toHaveTextContent('Updated Nurse')
+    expect(screen.getByTestId('role')).toHaveTextContent('NURSE')
   })
 })
