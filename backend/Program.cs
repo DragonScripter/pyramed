@@ -21,6 +21,8 @@ builder.Services.AddScoped(provider =>
             AutoConnectRealtime = true
         }));
 
+
+builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<ClinicalRules>();
 builder.Services.AddScoped<OperationsMetricsService>();
 builder.Services.AddHttpClient<IClinicalSummaryGenerator, OpenAiClinicalSummaryGenerator>(client =>
