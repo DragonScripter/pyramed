@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using backend.BackgroundWorkers;
 using backend.Services;
+using backend.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,9 +74,26 @@ builder.Services
                 });
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(StaffPermissions.UsersRead, policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.AddRequirements(
+            new StaffPermissionRequirement(StaffPermissions.UsersRead));
+    });
 
+    options.AddPolicy(StaffPermissions.UsersWrite, policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.AddRequirements(
+            new StaffPermissionRequirement(StaffPermissions.UsersWrite));
+    });
+});
 
+builder.Services.AddScoped<
+    IAuthorizationHandler,
+    StaffPermissionHandler>();
 
 // Ticket 13: C# Asynchronous Patient Monitoring Engine
 builder.Services.AddHostedService<VitalSimulator>();
