@@ -6,6 +6,7 @@ namespace backend.Services;
 public class AuthService
 {
     private readonly string _authUrl;
+    private readonly string _supabaseKey;
 
     public AuthService(IConfiguration configuration)
     {
@@ -13,7 +14,11 @@ public class AuthService
             ?? throw new InvalidOperationException(
                 "Supabase URL is not configured.");
 
-        _authUrl = $"{supabaseUrl.TrimEnd('/')}/auth/v1";
+                _authUrl = $"{supabaseUrl.TrimEnd('/')}/auth/v1";
+
+        _supabaseKey = configuration["Supabase:Key"]
+            ?? throw new InvalidOperationException(
+                "Supabase API key is not configured.");
     }
 
     public async Task<Session?> LoginAsync(
@@ -22,10 +27,12 @@ public class AuthService
     {
         var client = new StatelessClient();
 
-        var options = new StatelessClient.StatelessClientOptions
+                var options = new StatelessClient.StatelessClientOptions
         {
             Url = _authUrl
         };
+
+        options.Headers.Add("apikey", _supabaseKey);
 
         return await client.SignIn(
             email,
@@ -33,16 +40,17 @@ public class AuthService
             options);
     }
 
-public async Task LogoutAsync(string accessToken)
-{
-    var client = new StatelessClient();
-
-    var options = new StatelessClient.StatelessClientOptions
+    public async Task LogoutAsync(string accessToken)
     {
-        Url = _authUrl
-    };
+        var client = new StatelessClient();
 
-    await client.SignOut(accessToken, options);
-}
+        var options = new StatelessClient.StatelessClientOptions
+        {
+            Url = _authUrl
+        };
 
+        options.Headers.Add("apikey", _supabaseKey);
+
+        await client.SignOut(accessToken, options);
+    }
 }

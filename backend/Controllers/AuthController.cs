@@ -45,7 +45,8 @@ public class AuthController : ControllerBase
                 ExpiresIn = session.ExpiresIn
             });
         }
-        catch (GotrueException)
+
+                  catch (GotrueException)
         {
             return Unauthorized(new
             {
