@@ -55,8 +55,8 @@ const PatientAvatar = ({ name, avatarUrl }) => {
     <Avatar
       alt={`${displayName} avatar`}
       className="patient-list__avatar"
-      imgProps={{ onError: () => setImageFailed(true) }}
       src={imageFailed || !imageUrl ? undefined : imageUrl}
+      slotProps={{ img: { onError: () => setImageFailed(true) } }}
     >
       {getInitials(displayName)}
     </Avatar>
