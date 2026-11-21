@@ -61,6 +61,12 @@
   min-width: 0;
 }
 
+.patient-list__avatar {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
 .patient-list__info {
   display: flex;
   flex-direction: column;
