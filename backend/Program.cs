@@ -12,6 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 var supabaseUrl = builder.Configuration["Supabase:Url"] ?? "";
 var supabaseKey = builder.Configuration["Supabase:Key"] ?? "";
 
+
+
 // Register the Supabase client
 builder.Services.AddScoped(provider =>
     new Supabase.Client(
@@ -23,6 +25,19 @@ builder.Services.AddScoped(provider =>
             AutoConnectRealtime = true
         }));
 
+// Ticket 27: Register the Supabase Auth Admin client.
+// This client must only be used on the backend.
+builder.Services.AddScoped(provider =>
+    new Supabase.Gotrue.AdminClient(
+        supabaseKey,
+        new Supabase.Gotrue.ClientOptions
+        {
+            Url = $"{supabaseUrl.TrimEnd('/')}/auth/v1",
+            Headers = new Dictionary<string, string>
+            {
+                { "apikey", supabaseKey }
+            }
+        }));
 builder.Services.AddScoped<ClinicalRules>();
 builder.Services.AddScoped<OperationsMetricsService>();
 builder.Services.AddHttpClient<IClinicalSummaryGenerator, OpenAiClinicalSummaryGenerator>(client =>

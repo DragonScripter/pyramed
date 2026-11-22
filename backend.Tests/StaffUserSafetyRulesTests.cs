@@ -45,4 +45,12 @@ public class StaffUserSafetyRulesTests
 
         Assert.False(result);
     }
+    [Fact]
+public void IsLastActiveAdministrator_ReturnsFalse_ForRegularUser()
+{
+    var result = StaffUserSafetyRules.IsLastActiveAdministrator(
+        false, 1);
+
+    Assert.False(result);
+}
 }
