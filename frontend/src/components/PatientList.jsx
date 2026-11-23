@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Alert,
+  Avatar,
   Button,
   Card,
   CardContent,
@@ -17,6 +18,50 @@ import {
 } from '@mui/material';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
+
+const getDisplayName = (name) => String(name ?? '').trim() || 'Unknown patient';
+
+const getInitials = (name) => {
+  const nameParts = getDisplayName(name).split(/\s+/).filter(Boolean);
+
+  if (nameParts.length === 1) {
+    return nameParts[0].slice(0, 2).toUpperCase();
+  }
+
+  return nameParts
+    .slice(0, 2)
+    .map((part) => part.charAt(0))
+    .join('')
+    .toUpperCase();
+};
+
+const formatAge = (age) => {
+  if (age === null || age === undefined || String(age).trim() === '') {
+    return 'Age unavailable';
+  }
+
+  const numericAge = Number(age);
+  return Number.isFinite(numericAge) && numericAge >= 0
+    ? `Age: ${numericAge}`
+    : 'Age unavailable';
+};
+
+const PatientAvatar = ({ name, avatarUrl }) => {
+  const [imageFailed, setImageFailed] = useState(false);
+  const displayName = getDisplayName(name);
+  const imageUrl = typeof avatarUrl === 'string' ? avatarUrl.trim() : '';
+
+  return (
+    <Avatar
+      alt={`${displayName} avatar`}
+      className="patient-list__avatar"
+      src={imageFailed || !imageUrl ? undefined : imageUrl}
+      slotProps={{ img: { onError: () => setImageFailed(true) } }}
+    >
+      {getInitials(displayName)}
+    </Avatar>
+  );
+};
 
 const SERVER_DOWN_MESSAGE =
   'Server not connected. The patient list can’t be displayed right now.';
@@ -134,6 +179,7 @@ const PatientList = () => {
           <List disablePadding>
             {patients.map((p) => {
               const patientId = p.id ?? p.patientId;
+              const displayName = getDisplayName(p.name);
               return (
                 <ListItemButton
                   key={patientId}
@@ -151,22 +197,29 @@ const PatientList = () => {
                   }}
                 >
                   <div className="patient-list__row-content">
-  <div className="patient-list__details">
-    <div className="patient-list__info">
-      <ListItemText
-        primary={p.name}
-        secondary={`Admission status: ${p.status ?? 'Unknown'}`}
-        slotProps={{
-          primary: { sx: { fontWeight: 600 } },
-        }}
-      />
-    </div>
-  </div>
+                    <div className="patient-list__details">
+                      <PatientAvatar
+                        key={typeof p.avatarUrl === 'string' ? p.avatarUrl.trim() : ''}
+                        name={displayName}
+                        avatarUrl={p.avatarUrl}
+                      />
+                      <div className="patient-list__info">
+                        <ListItemText
+                          primary={displayName}
+                          secondary={`${formatAge(p.age)} · Admission status: ${p.status ?? 'Unknown'}`}
+                          slotProps={{
+                            primary: { sx: { fontWeight: 600 } },
+                          }}
+                        />
+                      </div>
+                    </div>
 
-  <div className="patient-list__status">
-    <PatientStatusBadge statusSummary={p.statusSummary} />
-  </div>
-</div>
+                    <div className="patient-list__status">
+                      <PatientStatusBadge
+                        statusSummary={p.statusSummary?.level ?? p.statusSummary}
+                      />
+                    </div>
+                  </div>
                 </ListItemButton>
               );
             })}
