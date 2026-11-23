@@ -301,6 +301,8 @@
     right: 0;
     border-right-color: var(--border);
   }
+}
+
   .bedside-chart__layout {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
@@ -319,7 +321,7 @@
     grid-template-columns: 1fr;
   }
 }
+
+.bedside-chart {
+  padding-bottom: 48px;
 }
-  .bedside-chart {
-    padding-bottom: 48px;
-  }

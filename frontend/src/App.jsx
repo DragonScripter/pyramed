@@ -19,6 +19,7 @@ import WelcomePage from './components/WelcomePage'
 import CdsInsightsSidebar from './components/CdsInsightsSidebar'
 import useCdsEvaluation from './hooks/useCdsEvaluation'
 import './App.css'
+import RoleManagement from './pages/RoleManagement'
 
 
 const demoVitals = [
@@ -170,7 +171,11 @@ function App() {
             path="/clinical-analyst"
             element={<ClinicalAnalystTerminal />}
           />
-
+          
+	   <Route
+            path="/admin/roles"
+            element={<RoleManagement />}
+          />
           <Route path="*" element={<p>Page not found</p>} />
         </Routes>
 
