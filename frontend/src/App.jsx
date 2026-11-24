@@ -20,7 +20,7 @@ import CdsInsightsSidebar from './components/CdsInsightsSidebar'
 import useCdsEvaluation from './hooks/useCdsEvaluation'
 import './App.css'
 import RoleManagement from './pages/RoleManagement'
-
+import ProtectedRoute from './components/ProtectedRoute'
 
 const demoVitals = [
   { heartRate: 72, spO2: 98 },
@@ -136,8 +136,7 @@ function App() {
     <ActivityLogProvider>
       <ToastProvider>
         <HamburgerMenu patientId={patientId} />
-
-        <Routes>
+        
           <Route
             path="/bedside"
             element={<BedsideChart defaultPatientId={patientId} />}
@@ -172,10 +171,13 @@ function App() {
             element={<ClinicalAnalystTerminal />}
           />
           
-	   <Route
+	   
+          <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+          <Route
             path="/admin/roles"
             element={<RoleManagement />}
           />
+        </Route>
           <Route path="*" element={<p>Page not found</p>} />
         </Routes>
 
