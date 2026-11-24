@@ -9,6 +9,7 @@ import Registration from './components/Registration'
 import PatientList from './components/PatientList'
 import ReasonTracker from './components/ReasonTracker'
 import BodyCompositionDashboard from './pages/BodyCompositionDashboard'
+import LoginPage from './pages/LoginPage'
 import ToastContainer from './components/ToastContainer'
 import { ToastProvider } from './context/ToastProvider'
 import usePatientVitals from './hooks/usePatientVitals'
@@ -143,6 +144,7 @@ function App() {
             element={<BedsideChart defaultPatientId={patientId} />}
           />
           <Route path="/profile" element={<UserProfile />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/patients" element={<PatientList />} />
           <Route path="/" element={<WelcomePage />} />
           <Route

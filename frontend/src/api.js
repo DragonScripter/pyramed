@@ -1,15 +1,31 @@
-import { supabase } from './supabaseClient'
+import { getAccessToken, handleUnauthorizedResponse } from './auth/authSession'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
 
 export async function apiFetch(path, options = {}) {
-  const { data: { session } } = await supabase.auth.getSession()
-  const headers = new Headers(options.headers)
-  if (session?.access_token) {
-    headers.set('Authorization', `Bearer ${session.access_token}`)
+  const {
+    accessToken = getAccessToken(),
+    handleUnauthorized = true,
+    ...fetchOptions
+  } = options
+  const headers = new Headers(fetchOptions.headers)
+
+  if (accessToken) {
+    headers.set('Authorization', `Bearer ${accessToken}`)
   }
-  if (options.body && !headers.has('Content-Type')) {
+
+  if (fetchOptions.body && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json')
   }
-  return fetch(`${API_BASE_URL}${path}`, { ...options, headers })
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...fetchOptions,
+    headers,
+  })
+
+  if (response.status === 401 && handleUnauthorized && accessToken) {
+    handleUnauthorizedResponse()
+  }
+
+  return response
 }
