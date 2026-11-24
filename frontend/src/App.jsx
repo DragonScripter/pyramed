@@ -21,8 +21,8 @@ import CdsInsightsSidebar from './components/CdsInsightsSidebar'
 import useCdsEvaluation from './hooks/useCdsEvaluation'
 import './App.css'
 import RoleManagement from './pages/RoleManagement'
-
-
+import ProtectedRoute from './components/ProtectedRoute'
+import NotAuthorized from './pages/NotAuthorized'
 const demoVitals = [
   { heartRate: 72, spO2: 98 },
   { heartRate: 72, spO2: 89 },
@@ -137,47 +137,29 @@ function App() {
     <ActivityLogProvider>
       <ToastProvider>
         <HamburgerMenu patientId={patientId} />
-
         <Routes>
-          <Route
-            path="/bedside"
-            element={<BedsideChart defaultPatientId={patientId} />}
-          />
-          <Route path="/profile" element={<UserProfile />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/patients" element={<PatientList />} />
           <Route path="/" element={<WelcomePage />} />
-          <Route
-            path="/patients/:id"
-            element={<BedsideChart defaultPatientId={patientId} />}
-          />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/not-authorized" element={<NotAuthorized />} />
 
-          <Route path="/registration" element={<Registration />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/bedside" element={<BedsideChart defaultPatientId={patientId} />} />
+            <Route path="/profile" element={<UserProfile />} />
+            <Route path="/patients" element={<PatientList />} />
+            <Route path="/patients/:id" element={<BedsideChart defaultPatientId={patientId} />} />
+            <Route path="/demo-telemetry" element={<BedsideChart defaultPatientId={patientId} demoTelemetry={true} />} />
+            <Route path="/body-composition" element={<BodyCompositionDashboard />} />
+            <Route path="/clinical-analyst" element={<ClinicalAnalystTerminal />} />
+          </Route>
 
-          <Route
-            path="/demo-telemetry"
-            element={
-              <BedsideChart
-                defaultPatientId={patientId}
-                demoTelemetry={true}
-              />
-            }
-          />
+          <Route element={<ProtectedRoute allowedRoles={['admin', 'nurse']} />}>
+            <Route path="/registration" element={<Registration />} />
+          </Route>
 
-          <Route
-            path="/body-composition"
-            element={<BodyCompositionDashboard />}
-          />
+          <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+            <Route path="/admin/roles" element={<RoleManagement />} />
+          </Route>
 
-          <Route
-            path="/clinical-analyst"
-            element={<ClinicalAnalystTerminal />}
-          />
-          
-	   <Route
-            path="/admin/roles"
-            element={<RoleManagement />}
-          />
           <Route path="*" element={<p>Page not found</p>} />
         </Routes>
 
