@@ -86,6 +86,11 @@ function HamburgerMenu({ patientId }) {
               Clinical Analyst Terminal
             </Link>
           </li>
+              <li>
+            <Link to="/admin/roles" onClick={close}>
+               Role Management
+           </Link>
+           </li>
         </ul>
       )}
     </nav>
