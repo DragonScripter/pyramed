@@ -1,6 +1,6 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Pyramed.Audit;
+using backend.Audit;
 using Xunit;
 
 public sealed class AuditLogRepositoryTests : IDisposable

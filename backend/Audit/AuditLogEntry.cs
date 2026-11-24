@@ -1,4 +1,4 @@
-namespace Pyramed.Audit;
+namespace backend.Audit;
 
 public enum AuditAction { View, Edit }
 

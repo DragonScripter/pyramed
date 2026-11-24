@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
-namespace Pyramed.Audit;
+namespace backend.Audit;
 
 public static class AuditHasher
 {

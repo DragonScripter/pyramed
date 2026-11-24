@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 
-namespace Pyramed.Audit;
+namespace backend.Audit;
 public sealed class AuditLogRepository(AuditDbContext db) : IAuditLogRepository
 {
     // Serializes appends within this process so two requests can't read the same "previous" hash.

@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using backend.BackgroundWorkers;
 using backend.Services;
+using Microsoft.EntityFrameworkCore;
+using backend.Audit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,7 +83,10 @@ builder.Services.AddHostedService<VitalSimulator>();
 //Ticket10
 builder.Services.AddSingleton<backend.Services.CdsValidationEngine>();
 builder.Services.AddScoped<IBodyCompositionService, BodyCompositionService>();
-
+//ticket 25 audit log
+builder.Services.AddDbContext<AuditDbContext>(o =>
+    o.UseNpgsql(builder.Configuration.GetConnectionString("Default"))); 
+builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 // Configure CORS for React
 builder.Services.AddCors(options =>
 {

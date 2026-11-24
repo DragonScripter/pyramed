@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace Pyramed.Audit;
+namespace backend.Audit;
 
 public sealed class AuditDbContext(DbContextOptions<AuditDbContext> options) : DbContext(options)
 {

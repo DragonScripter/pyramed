@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 
-namespace Pyramed.Audit;
+namespace backend.Audit;
 
 // Deliberately no Update/Delete/Remove members.
 public interface IAuditLogRepository
