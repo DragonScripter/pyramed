@@ -1,20 +1,42 @@
-
 import { useState } from 'react'
-import { Link, useMatch } from 'react-router-dom' //  Added useMatch
+import { Link, useMatch } from 'react-router-dom'
+import { useAuth } from '../context/useAuth' // match the export style in useAuth.js
 import './HamburgerMenu.css'
 
-//  Added patientId prop from App.jsx
 function HamburgerMenu({ patientId }) {
   const [isOpen, setIsOpen] = useState(false)
+  const { user, isAuthenticated, logout } = useAuth()
 
-  //  Get the patient ID from the current URL
   const patientMatch = useMatch('/patients/:patientId/*')
-
- //   Use the URL patient ID, or fall back to App's default ID
-  const currentPatientId =
-    patientMatch?.params.patientId ?? patientId
+  const currentPatientId = patientMatch?.params.patientId ?? patientId
 
   const close = () => setIsOpen(false)
+
+  const items = [
+    { label: 'Welcome Page', to: '/', public: true },
+    { label: 'Live Bedside Chart', to: '/bedside' },
+    { label: 'Patient List', to: '/patients' },
+    ...(currentPatientId
+      ? [{ label: 'Patient Info', to: `/patients/${currentPatientId}` }]
+      : []),
+    { label: 'Patient Registration', to: '/registration', roles: ['admin', 'nurse'] },
+    { label: 'Demo Telemetry', to: '/demo-telemetry' },
+    { label: 'My Profile', to: '/profile' },
+    { label: 'Body Composition Dashboard', to: '/body-composition' },
+    { label: 'Clinical Analyst Terminal', to: '/clinical-analyst' },
+    { label: 'Role Management', to: '/admin/roles', roles: ['admin'] },
+  ]
+
+  const visibleItems = items.filter((item) => {
+    if (item.public) return true
+    if (!isAuthenticated) return false
+    return !item.roles || item.roles.includes(user?.role)
+  })
+
+  const handleLogout = async () => {
+    close()
+    await logout()
+  }
 
   return (
     <nav className="hamburger-nav">
@@ -31,66 +53,25 @@ function HamburgerMenu({ patientId }) {
 
       {isOpen && (
         <ul className="hamburger-menu">
-          <li>
-            <Link to="/" onClick={close}>
-              Welcome Page
-            </Link>
-          </li>
-          <li>
-            <Link to="/bedside" onClick={close}>
-              Live Bedside Chart
-            </Link>
-          </li>
-          <li>
-            <Link to="/patients" onClick={close}>
-              Patient List
-            </Link>
-          </li>
-
-          {/* NEW: Show Patient Info only when a patient ID exists */}
-          {currentPatientId && (
-            <li>
-              <Link
-                to={`/patients/${currentPatientId}`}
-                onClick={close}
-              >
-                Patient Info
+          {visibleItems.map((item) => (
+            <li key={item.to}>
+              <Link to={item.to} onClick={close}>
+                {item.label}
               </Link>
             </li>
-          )}
+          ))}
 
           <li>
-            <Link to="/registration" onClick={close}>
-              Patient Registration
-            </Link>
+            {isAuthenticated ? (
+              <button type="button" onClick={handleLogout}>
+                Log out
+              </button>
+            ) : (
+              <Link to="/login" onClick={close}>
+                Log in
+              </Link>
+            )}
           </li>
-
-          <li>
-            <Link to="/demo-telemetry" onClick={close}>
-              Demo Telemetry
-            </Link>
-          </li>
-          <li>
-          <Link to="/profile" onClick={close}>
-            My Profile
-          </Link>
-        </li>
-
-          <li>
-            <Link to="/body-composition" onClick={close}>
-              Body Composition Dashboard
-            </Link>
-          </li>
-          <li>
-            <Link to="/clinical-analyst" onClick={close}>
-              Clinical Analyst Terminal
-            </Link>
-          </li>
-              <li>
-            <Link to="/admin/roles" onClick={close}>
-               Role Management
-           </Link>
-           </li>
         </ul>
       )}
     </nav>
