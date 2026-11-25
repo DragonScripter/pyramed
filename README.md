@@ -1,101 +1,133 @@
-# pyramed
-
+# PyraMed
 
 PyraMed is a hospital operations simulator that models how healthcare software systems work together during the day-to-day operation of a hospital. It simulates patient registration, vital monitoring, clinical decision support, privacy auditing, and background processes, allowing IT-focused users to experience how changes and events within one system can affect the rest of the hospital.
 
+> **Educational simulator.** All patient records and readings are simulated. PyraMed is not a medical device and must not be used to guide real clinical decisions.
+
 ---
+
+## Who PyraMed Is For
+
+- **IT students and recent graduates** learning how software supports hospital operations and healthcare data.
+- **Software developers and IT professionals** exploring the workflows, system interactions, and technical challenges of hospital information systems.
+- **Healthcare IT professionals** who want a simulated environment for exploring hospital software processes without real patient data.
+
+## What You Can Explore
+
+- **Patient registration and records:** how patient information enters the system.
+- **Simulated vital-sign monitoring:** bedside charts and demo telemetry.
+- **Clinical decision support and alerts:** simulated readings crossing configured thresholds.
+- **Operations metrics and bed overview:** system-wide activity and hospital capacity.
+- **Privacy activity and role-based access:** how access and permissions are represented.
+- **Body-composition dashboard:** another kind of patient-related data.
+
+## Example Workflow
+
+1. Sign in and open the patient list.
+2. Select a patient, or register a simulated patient if your role allows it.
+3. Open the bedside chart and review the vital signs.
+4. Explore alerts and clinical decision-support explanations.
+5. Visit the operations terminal to review metrics and the bed overview.
+
+Available pages and actions depend on your account role (for example, patient registration and role management are restricted to certain roles).
+
+## Learning Goals
+
+- How patient information is created and displayed across workflows.
+- How simulated vital readings lead to alerts and decision-support results.
+- How bedside monitoring and operations views present different perspectives on hospital activity.
+- How authentication, roles, and activity logging fit into a healthcare software environment.
+
+---
+
+## Architecture
+
+```text
+React (Vite) frontend  →  .NET 10 Web API  →  Supabase (PostgreSQL + Realtime)
+                                ↑
+                  Background worker generating simulated vitals
+```
 
 ## Tech Stack
 
 - **Frontend:** React (Vite)
-- **Backend:** C# (.NET 10.0 Web API + Asynchronous Background Services)
-- **Database:** Supabase (Cloud PostgreSQL Engine + Realtime Event Streams)
-- **Routing & Deployment:** Nginx / Docker (Staging Phase)
+- **Backend:** C# (.NET 10 Web API + asynchronous background services)
+- **Database:** Supabase (cloud PostgreSQL + Realtime event streams)
+- **Routing & Deployment:** Nginx / Docker (staging phase)
 
 ---
 
-## Team & Responsibilities
+## Running the Project
 
-- **Jude Ma:** Project Lead, DevOps, and QA Lead (Infrastructure, Routing, Security Middleware & Auditing Loggers)
-- **Gloria Ojiebun:** Full-Stack Engineer and Cloud Developer (Patient Registration, Information Aggregation, Background Vital Simulation Engine)
-- **Yena Hong:** Full-Stack Engineer, QA Engineer, and Cloud Developer (Real-Time Provider Dashboards, Clinical Decision Support Rules, UI Alert Core)
+### Prerequisites
+- Node.js (current LTS) and npm
+- .NET 10 SDK
+- Supabase configuration values for the `pyramed-dev` project, provided by the team
 
----
+### Configuration
+Never commit these files.
+- **Frontend:** copy `frontend/.env.example` to `frontend/.env` and fill in the values.
+- **Backend:** copy `backend/appsettings.Example.json` to `backend/appsettings.Development.json` and fill in the values.
 
-## Setup & Onboarding 
+### Start the app
+In two terminals:
 
-Follow these steps to link your local machine to our shared development testing environment.
-
-### 1. Synchronize the Repository
-Pull down the master directory layout onto your computer:
 ```bash
-git pull origin main
-```
-
-### 2. Configure Your Database Credentials
-We're using a one central cloud database instance (`pyramed-dev`). You must configure your local configuration files to authenticate securely. **Do not commit these files to GitHub.**
-
-#### Frontend Configuration (`/frontend/.env`)
-Check the .env.example
-
-#### Backend Configuration (`/backend/appsettings.Development.json`)
-Check the appsettings.example
-```
-
----
-
-### Running Locally
-
-To test features locally during development, go to your project directory and start both projects inside two separate terminal windows.
-
-#### Start the React Frontend Engine
-```bash
+# Frontend
 cd frontend
 npm install
 npm run dev
 ```
 
-#### Start the C# .NET Web API Core
 ```bash
+# Backend
 cd backend
 dotnet watch run
 ```
 
+---
 
-## Folder Structure & Team Responsibilities
+## Team & Responsibilities
 
-```text
-pyramed-project/                    <-- Main Git Repository Root
-├── frontend/                       <-- React Code Base
-│   ├── src/
-│   │   ├── components/             
-│   │   │   ├── Registration.jsx    # OjieG-Code's file (Intake Forms)
-│   │   │   └── MonitorView.jsx     # nugiraffe's file (Bedside Monitor)
-│   │   ├── App.jsx                 # The main router & layout hub
-│   │   └── main.jsx
-│   ├── .env                        # Hidden database credentials (LOCAL ONLY)
-│   └── .gitignore
-│
-└── backend/                        <-- C# .NET CORE WEB API CORE
-    ├── BackgroundWorkers/          # OjieG-Code'S WORKSPACE (Simulation Loops)
-    │   └── .gitkeep
-    ├── Controllers/                # nugiraffe & OjieG-Code'S WORKSPACE (API Routes)
-    │   └── PatientController.cs    # Shared database entry & query endpoint
-    ├── Middleware/                 # DragonScripter'S WORKSPACE (Security & Auditing)
-    │   └── .gitkeep
-    ├── Models/                     # SHARED DATA STRUCTURES (Database Mappings)
-    │   └── .gitkeep
-    ├── Services/                   # nugiraffe'S WORKSPACE (Medical Rules Engine)
-    │   └── .gitkeep
-    ├── Program.cs                  # The main engine configuration file
-    ├── appsettings.json            # Local configuration keys (LOCAL ONLY)
-    └── appsettings.Example.json    # Safe template shared 
-```
-
+- **Jude Ma:** Project Lead, DevOps, and QA Lead (infrastructure, routing, security middleware, auditing loggers)
+- **Gloria Ojiebun:** Full-Stack Engineer and Cloud Developer (patient registration, information aggregation, background vital simulation engine)
+- **Yena Hong:** Full-Stack Engineer, QA Engineer, and Cloud Developer (real-time provider dashboards, clinical decision support rules, UI alert core)
 
 ---
 
-## Git Branching 
-- **Do not push directly to `main`.**
-- Create a feature branch off of `main` named after your module assignment (e.g., `gloria/simulation-worker` or `yena/clinical-dashboard`).
-- Open a Pull Request (PR) on GitHub and secure a peer review from another teammate before merging.
+## Contributing
+
+### Project structure
+
+```text
+pyramed/
+├── backend/
+│   ├── Audit/
+│   ├── BackgroundWorkers/   # Vital simulation loops
+│   ├── Controllers/         # API routes
+│   ├── DTO/
+│   ├── Middleware/          # Security and auditing
+│   ├── Models/              # Shared data structures
+│   └── Services/            # Clinical rules engine
+├── backend.Tests/
+├── db/
+├── docs/
+├── frontend/
+│   ├── public/
+│   └── src/
+│       ├── assets/
+│       ├── components/
+│       ├── config/
+│       ├── context/
+│       ├── hooks/
+│       ├── pages/
+│       └── utils/
+├── nginx/
+└── supabase/
+    └── migrations/
+```
+
+### Git branching
+- Do not push directly to `main`.
+- Branch off `main` using your module name (e.g. `gloria/simulation-worker`, `yena/clinical-dashboard`).
+- Open a Pull Request and get a peer review before merging.
