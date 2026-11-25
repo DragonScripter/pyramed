@@ -3,31 +3,60 @@ import { PERMISSIONS, ROLE_PERMISSIONS, ROLES } from './roles'
 import { hasPermission } from '../utils/auth'
 
 describe('role permission mapping', () => {
-  it('grants physicians access to clinical review and record entry only', () => {
-    expect(ROLE_PERMISSIONS[ROLES.PHYSICIAN]).toEqual([
-      PERMISSIONS.READ_PATIENTS,
-      PERMISSIONS.MONITOR_TELEMETRY,
-      PERMISSIONS.READ_ALARMS,
-      PERMISSIONS.WRITE_CLINICAL_RECORDS,
+  it('defines the four required system roles', () => {
+    expect(Object.values(ROLES)).toEqual([
+      'Clerk',
+      'Provider',
+      'Analyst',
+      'Administrator',
     ])
-    expect(hasPermission(ROLES.PHYSICIAN, PERMISSIONS.READ_ANALYTICS)).toBe(false)
   })
 
-  it('grants nurses telemetry monitoring and critical alarm response only', () => {
-    expect(ROLE_PERMISSIONS[ROLES.NURSE]).toEqual([
-      PERMISSIONS.MONITOR_TELEMETRY,
-      PERMISSIONS.READ_ALARMS,
-      PERMISSIONS.RESPOND_TO_ALARMS,
+  it('uses explicit dot-notation permission identifiers', () => {
+    expect(Object.values(PERMISSIONS)).toEqual([
+      'patients.read',
+      'patients.write',
+      'records.read',
+      'records.write',
+      'rules.read',
+      'rules.write',
+      'analytics.read',
+      'audit.read',
+      'roles.read',
+      'roles.write',
     ])
-    expect(hasPermission(ROLES.NURSE, PERMISSIONS.READ_PATIENTS)).toBe(false)
   })
 
-  it('grants administrators analytical, audit, and role management access only', () => {
-    expect(ROLE_PERMISSIONS[ROLES.ADMIN]).toEqual([
-      PERMISSIONS.READ_ANALYTICS,
-      PERMISSIONS.READ_AUDIT,
-      PERMISSIONS.MANAGE_ADMINISTRATION,
+  it('gives clerks only the patient permissions needed for operations', () => {
+    expect(ROLE_PERMISSIONS[ROLES.CLERK]).toEqual([
+      PERMISSIONS.PATIENTS_READ,
+      PERMISSIONS.PATIENTS_WRITE,
     ])
-    expect(hasPermission(ROLES.ADMIN, PERMISSIONS.MONITOR_TELEMETRY)).toBe(false)
+    expect(hasPermission(ROLES.CLERK, PERMISSIONS.RECORDS_WRITE)).toBe(false)
+  })
+
+  it('gives providers clinical record permissions without administration access', () => {
+    expect(ROLE_PERMISSIONS[ROLES.PROVIDER]).toEqual([
+      PERMISSIONS.PATIENTS_READ,
+      PERMISSIONS.RECORDS_READ,
+      PERMISSIONS.RECORDS_WRITE,
+      PERMISSIONS.RULES_READ,
+    ])
+    expect(hasPermission(ROLES.PROVIDER, PERMISSIONS.ROLES_WRITE)).toBe(false)
+  })
+
+  it('gives analysts read-only analytical and audit access', () => {
+    expect(ROLE_PERMISSIONS[ROLES.ANALYST]).toEqual([
+      PERMISSIONS.PATIENTS_READ,
+      PERMISSIONS.ANALYTICS_READ,
+      PERMISSIONS.AUDIT_READ,
+    ])
+    expect(hasPermission(ROLES.ANALYST, PERMISSIONS.PATIENTS_WRITE)).toBe(false)
+  })
+
+  it('gives administrators explicit access-management permissions', () => {
+    expect(hasPermission(ROLES.ADMINISTRATOR, PERMISSIONS.ROLES_READ)).toBe(true)
+    expect(hasPermission(ROLES.ADMINISTRATOR, PERMISSIONS.ROLES_WRITE)).toBe(true)
+    expect(hasPermission(ROLES.ADMINISTRATOR, PERMISSIONS.RULES_WRITE)).toBe(true)
   })
 })
