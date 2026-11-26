@@ -46,15 +46,17 @@ public class AuthController : ControllerBase
             });
         }
 
-                  catch (GotrueException)
+        catch (GotrueException ex)
         {
+            Console.WriteLine($"[LOGIN] Gotrue error: status={ex.StatusCode} reason={ex.Reason} msg={ex.Message}");
             return Unauthorized(new
             {
                 message = "Invalid email or password."
             });
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            Console.WriteLine($"[LOGIN] Unexpected error: {ex}");
             return StatusCode(503, new
             {
                 message = "Authentication service unavailable."

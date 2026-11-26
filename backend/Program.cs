@@ -7,6 +7,7 @@ using backend.Services;
 using backend.Middleware;
 using Microsoft.EntityFrameworkCore;
 using backend.Audit;
+using PyraMed.Api.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,7 +49,8 @@ builder.Services.AddHttpClient<IClinicalSummaryGenerator, OpenAiClinicalSummaryG
 {
     client.Timeout = TimeSpan.FromSeconds(5);
 });
-
+//Ticket 27 subtask 1: Register the password hasher service
+builder.Services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
 builder.Services.AddControllers();
 
 
@@ -108,6 +110,12 @@ builder.Services.AddAuthorization(options =>
         policy.AddRequirements(
             new StaffPermissionRequirement(StaffPermissions.UsersWrite));
     });
+    options.AddPolicy(StaffPermissions.AuditRead, policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.AddRequirements(
+            new StaffPermissionRequirement(StaffPermissions.AuditRead));
+    });
 });
 
 builder.Services.AddScoped<
@@ -125,6 +133,10 @@ builder.Services.AddDbContext<AuditDbContext>(o =>
 
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 builder.Services.AddScoped<PatientAuditFilter>();
+builder.Services.AddSingleton<IClinicalRuleStore, ClinicalRuleStore>();
+builder.Services.AddControllers()
+    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(
+        new System.Text.Json.Serialization.JsonStringEnumConverter()));
 // Configure CORS for React
 builder.Services.AddCors(options =>
 {

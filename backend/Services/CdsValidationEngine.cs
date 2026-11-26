@@ -4,24 +4,37 @@ namespace backend.Services;
 
 public class CdsValidationEngine
 {
-    private const int HeartRateThreshold = 110;
-    private const int SpO2Threshold = 92;
+    private readonly IClinicalRuleStore _store;
+
+    public CdsValidationEngine(IClinicalRuleStore store) => _store = store;
 
     public CdsEvaluationDto Evaluate(VitalRecord vitals)
     {
         var result = new CdsEvaluationDto();
-
-        bool tachycardia = vitals.HeartRate > HeartRateThreshold;
-        bool hypoxia = vitals.SpO2 < SpO2Threshold;
-
         int score = 0;
-        if (tachycardia)
-            score += 20 + Math.Min(20, vitals.HeartRate - HeartRateThreshold);
-        if (hypoxia)
-            score += 20 + Math.Min(20, (SpO2Threshold - vitals.SpO2) * 4);
+        var triggeredCodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var vitalName in VitalAccessor.Names)
+        {
+            double value = VitalAccessor.Read(vitals, vitalName);
+
+            foreach (var rule in _store.GetRulesFor(vitalName))
+            {
+                if (!rule.IsTriggeredBy(value)) continue;
+
+                int severity = (int)Math.Min(
+                    rule.MaxSeverityPoints,
+                    rule.SeverityDistance(value) * rule.SeverityMultiplier);
+
+                score += rule.BasePoints + severity;
+                result.Warnings.Add($"{rule.AdvisoryText}: {vitalName} = {value}");
+
+                if (rule.Code is not null) triggeredCodes.Add(rule.Code);
+            }
+        }
 
         // Composite rule: both breached simultaneously
-        if (tachycardia && hypoxia)
+        if (triggeredCodes.Contains("TACHYCARDIA") && triggeredCodes.Contains("HYPOXIA"))
         {
             score += 20;
             result.Warnings.Add(
@@ -31,8 +44,8 @@ public class CdsValidationEngine
 
         result.RiskScore = Math.Min(score, 100);
         result.RiskLevel = result.RiskScore >= 70 ? "High"
-        : result.RiskScore >= 30 ? "Moderate"
-        : "Low";
+                         : result.RiskScore >= 30 ? "Moderate"
+                         : "Low";
         return result;
     }
 }
