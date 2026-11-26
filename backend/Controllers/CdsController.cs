@@ -1,6 +1,8 @@
 using backend.Services;
+using backend.Middleware;
 using Microsoft.AspNetCore.Mvc;
 using PyraMed.Api.Models;
+using backend.Security;
 
 namespace backend.Controllers;
 
@@ -18,6 +20,7 @@ public class CdsController : ControllerBase
     }
 
     [HttpGet("evaluate/{patientId}")]
+    [RequirePermission(RbacPermissions.RulesRead)]
     public async Task<IActionResult> Evaluate(string patientId)
     {
         if (!Guid.TryParse(patientId, out var id))

@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using backend.Services;
+using backend.Middleware;
+using backend.Security;
 using PyraMed.Api.Models;
 
 namespace backend.Controllers;
@@ -33,6 +35,7 @@ public class PatientController : ControllerBase
     }
 
     [HttpPost]
+    [RequirePermission(RbacPermissions.PatientsWrite)]
     public async Task<IActionResult> CreatePatient(
         [FromBody] CreatePatientRequest request)
     {
@@ -72,6 +75,7 @@ public class PatientController : ControllerBase
     }
     // Ticket #16: Get a paginated list of patients
     [HttpGet]
+    [RequirePermission(RbacPermissions.PatientsRead)]
     public async Task<IActionResult> GetPatients(
         [FromQuery] int limit = 20,
         [FromQuery] int offset = 0)
@@ -144,6 +148,7 @@ public class PatientController : ControllerBase
     /// vital records. Recorded extrema are not clinical classifications.
     /// </summary>
     [HttpGet("{patientId}/vitals/summary")]
+    [RequirePermission(RbacPermissions.RecordsRead)]
     [ProducesResponseType(typeof(VitalsSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -172,6 +177,7 @@ public class PatientController : ControllerBase
     }
 
     [HttpGet("{patientId}")]
+    [RequirePermission(RbacPermissions.PatientsRead)]
     public async Task<IActionResult> GetPatient(string patientId)
     {
         if (!Guid.TryParse(patientId, out var id))

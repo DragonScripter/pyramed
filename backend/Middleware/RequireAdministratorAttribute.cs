@@ -1,23 +1,13 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
+using backend.Security;
 
 namespace backend.Middleware;
 
-public class RequireAdministratorAttribute : Attribute, IAuthorizationFilter
+// Kept as a compatibility alias for existing role-management endpoints.
+// Authorization is now based on the explicit roles.write permission.
+public sealed class RequireAdministratorAttribute : RequirePermissionAttribute
 {
-    public void OnAuthorization(AuthorizationFilterContext context)
+    public RequireAdministratorAttribute()
+        : base(RbacPermissions.RolesWrite)
     {
-        var user = context.HttpContext.User;
-
-        if (user.Identity?.IsAuthenticated != true)
-        {
-            context.Result = new ObjectResult(new { message = "Authentication required." }) { StatusCode = 401 };
-            return;
-        }
-
-        if (!user.IsInRole("Administrator"))
-        {
-            context.Result = new ObjectResult(new { message = "Only System Administrators can modify roles." }) { StatusCode = 403 };
-        }
     }
 }

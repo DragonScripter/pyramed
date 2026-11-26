@@ -1,4 +1,5 @@
 using backend.Middleware;
+using backend.Security;
 using Microsoft.AspNetCore.Mvc;
 using PyraMed.Api.Models;
 
@@ -25,6 +26,7 @@ public class RolesController : ControllerBase
     }
 
     [HttpGet]
+    [RequirePermission(RbacPermissions.RolesRead)]
     public async Task<IActionResult> GetRoles()
     {
         try

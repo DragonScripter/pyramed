@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using backend.Dtos;
 using backend.Services;
+using backend.Middleware;
+using backend.Security;
 
 namespace backend.Controllers;
 
@@ -22,6 +24,7 @@ public class BodyCompositionController : ControllerBase
     /// Optional filters: ?from=2026-01-01&amp;to=2026-06-30 (inclusive, ISO 8601).
     /// </summary>
     [HttpGet]
+    [RequirePermission(RbacPermissions.RecordsRead)]
     [ProducesResponseType(typeof(BodyCompositionResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
