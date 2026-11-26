@@ -7,6 +7,7 @@ using backend.Services;
 using backend.Middleware;
 using Microsoft.EntityFrameworkCore;
 using backend.Audit;
+using PyraMed.Api.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,7 +49,8 @@ builder.Services.AddHttpClient<IClinicalSummaryGenerator, OpenAiClinicalSummaryG
 {
     client.Timeout = TimeSpan.FromSeconds(5);
 });
-
+//Ticket 27 subtask 1: Register the password hasher service
+builder.Services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
 builder.Services.AddControllers();
 
 
