@@ -3,11 +3,13 @@ using backend.Middleware;
 using Microsoft.AspNetCore.Mvc;
 using PyraMed.Api.Models;
 using backend.Security;
+using backend.Audit;
 
 namespace backend.Controllers;
 
 [ApiController]
 [Route("api/cds")]
+[ServiceFilter(typeof(PatientAuditFilter))]
 public class CdsController : ControllerBase
 {
     private readonly Supabase.Client _supabase;

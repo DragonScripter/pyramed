@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using backend.BackgroundWorkers;
 using backend.Services;
+using backend.Middleware;
 using Microsoft.EntityFrameworkCore;
 using backend.Audit;
 
@@ -11,6 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Fetch Supabase keys from appsettings.json
 var supabaseUrl = builder.Configuration["Supabase:Url"] ?? "";
 var supabaseKey = builder.Configuration["Supabase:Key"] ?? "";
+
+
 
 // Register the Supabase client
 builder.Services.AddScoped(provider =>
@@ -23,6 +27,19 @@ builder.Services.AddScoped(provider =>
             AutoConnectRealtime = true
         }));
 
+// Ticket 27: Register the Supabase Auth Admin client.
+// This client must only be used on the backend.
+builder.Services.AddScoped(provider =>
+    new Supabase.Gotrue.AdminClient(
+        supabaseKey,
+        new Supabase.Gotrue.ClientOptions
+        {
+            Url = $"{supabaseUrl.TrimEnd('/')}/auth/v1",
+            Headers = new Dictionary<string, string>
+            {
+                { "apikey", supabaseKey }
+            }
+        }));
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<ClinicalRules>();
@@ -76,9 +93,26 @@ builder.Services
                 });
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(StaffPermissions.UsersRead, policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.AddRequirements(
+            new StaffPermissionRequirement(StaffPermissions.UsersRead));
+    });
 
+    options.AddPolicy(StaffPermissions.UsersWrite, policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.AddRequirements(
+            new StaffPermissionRequirement(StaffPermissions.UsersWrite));
+    });
+});
 
+builder.Services.AddScoped<
+    IAuthorizationHandler,
+    StaffPermissionHandler>();
 
 // Ticket 13: C# Asynchronous Patient Monitoring Engine
 builder.Services.AddHostedService<VitalSimulator>();
@@ -88,7 +122,9 @@ builder.Services.AddScoped<IBodyCompositionService, BodyCompositionService>();
 //ticket 25 audit log
 builder.Services.AddDbContext<AuditDbContext>(o =>
     o.UseNpgsql(builder.Configuration.GetConnectionString("Default"))); 
+
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+builder.Services.AddScoped<PatientAuditFilter>();
 // Configure CORS for React
 builder.Services.AddCors(options =>
 {

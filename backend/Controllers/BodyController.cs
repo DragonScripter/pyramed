@@ -3,11 +3,14 @@ using backend.Dtos;
 using backend.Services;
 using backend.Middleware;
 using backend.Security;
+using backend.Audit;
 
 namespace backend.Controllers;
 
 [ApiController]
 [Route("api/patients/{patientId}/body-composition")]
+[ServiceFilter(typeof(PatientAuditFilter))]
+
 // TODO: enable once roles are wired up in the API (dashboard is Clinical Analyst only):
 // [Authorize(Roles = "ClinicalAnalyst")]
 public class BodyCompositionController : ControllerBase

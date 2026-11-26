@@ -3,13 +3,15 @@ using backend.Services;
 using backend.Middleware;
 using backend.Security;
 using PyraMed.Api.Models;
+using backend.Audit;
 
 namespace backend.Controllers;
 
 [ApiController]
 [Route("api/patient")]
+[ServiceFilter(typeof(PatientAuditFilter))]
 public class PatientController : ControllerBase
-{
+ {
     private readonly Supabase.Client _supabase;
     private readonly ClinicalRules _clinicalRules;
 
