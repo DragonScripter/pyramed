@@ -10,7 +10,7 @@ the UI only uses the returned role to choose an experience.
 `frontend/src/config/roles.ts`.
 
 ```text
-PHYSICIAN | NURSE | ADMIN
+Clerk | Provider | Analyst | Administrator
 ```
 
 A profile with no recognised role must not be granted a default role or
@@ -37,7 +37,7 @@ permission by either the API or the UI.
     "id": "uuid",
     "email": "clinician@example.com",
     "fullName": "Example Clinician",
-    "role": "PHYSICIAN"
+    "role": "Provider"
   }
 }
 ```
@@ -72,7 +72,7 @@ the authoritative current profile and role:
   "id": "uuid",
   "fullName": "Example Clinician",
   "avatarUrl": null,
-  "role": "PHYSICIAN"
+    "role": "Provider"
 }
 ```
 

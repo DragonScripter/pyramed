@@ -15,7 +15,7 @@ describe('authentication API client', () => {
     const payload = {
       accessToken: 'signed-token',
       expiresAt: '2026-11-19T18:30:00Z',
-      user: { id: 'user-1', email: 'clinician@example.com', role: 'PHYSICIAN' },
+      user: { id: 'user-1', email: 'provider@example.com', role: 'Provider' },
     }
     const json = vi.fn().mockResolvedValue(payload)
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, status: 200, json }))
@@ -48,7 +48,7 @@ describe('authentication API client', () => {
   })
 
   it('returns the authoritative profile from the protected current-user endpoint', async () => {
-    const profile = { id: 'user-1', fullName: 'Example', role: 'PHYSICIAN' }
+    const profile = { id: 'user-1', fullName: 'Example', role: 'Provider' }
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,
       status: 200,

@@ -35,7 +35,7 @@ function AuthControls() {
       <button type="button" onClick={() => logout()}>
         Sign out
       </button>
-      <button type="button" onClick={() => updateUser({ fullName: 'Updated Nurse' })}>
+      <button type="button" onClick={() => updateUser({ fullName: 'Updated Provider' })}>
         Update name
       </button>
     </>
@@ -61,10 +61,10 @@ function mockLogin(expiresAt = new Date(Date.now() + 60_000).toISOString()) {
   loginRequest.mockResolvedValue({
     accessToken: 'signed-token',
     expiresAt,
-    user: { id: 'user-1', email: 'user@example.com', role: 'NURSE' },
+    user: { id: 'user-1', email: 'user@example.com', role: 'Provider' },
   })
   getCurrentUser.mockResolvedValue({
-    id: 'user-1', fullName: 'Example Nurse', role: 'NURSE', avatarUrl: null,
+    id: 'user-1', fullName: 'Example Provider', role: 'Provider', avatarUrl: null,
   })
 }
 
@@ -82,7 +82,7 @@ describe('AuthProvider', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Sign in' }))
 
     await waitFor(() => expect(screen.getByTestId('authenticated')).toHaveTextContent('true'))
-    expect(screen.getByTestId('role')).toHaveTextContent('NURSE')
+    expect(screen.getByTestId('role')).toHaveTextContent('Provider')
     expect(getAccessToken()).toBe('signed-token')
     expect(getCurrentUser).toHaveBeenCalledOnce()
   })
@@ -126,7 +126,7 @@ describe('AuthProvider', () => {
     await waitFor(() => expect(screen.getByTestId('authenticated')).toHaveTextContent('true'))
     fireEvent.click(screen.getByRole('button', { name: 'Update name' }))
 
-    expect(screen.getByTestId('name')).toHaveTextContent('Updated Nurse')
-    expect(screen.getByTestId('role')).toHaveTextContent('NURSE')
+    expect(screen.getByTestId('name')).toHaveTextContent('Updated Provider')
+    expect(screen.getByTestId('role')).toHaveTextContent('Provider')
   })
 })
