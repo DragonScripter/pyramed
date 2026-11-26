@@ -122,7 +122,9 @@ builder.Services.AddScoped<IBodyCompositionService, BodyCompositionService>();
 //ticket 25 audit log
 builder.Services.AddDbContext<AuditDbContext>(o =>
     o.UseNpgsql(builder.Configuration.GetConnectionString("Default"))); 
+
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+builder.Services.AddScoped<PatientAuditFilter>();
 // Configure CORS for React
 builder.Services.AddCors(options =>
 {

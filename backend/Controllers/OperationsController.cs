@@ -1,6 +1,7 @@
 using backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using PyraMed.Api.Models;
+using backend.Audit;
 
 namespace backend.Controllers;
 
@@ -34,6 +35,7 @@ public sealed class OperationsController : ControllerBase
     }
 
     [HttpGet("bed-overview")]
+    [ServiceFilter(typeof(PatientAuditFilter))]
     [ProducesResponseType(typeof(OperationsBedOverviewResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<OperationsBedOverviewResponse>> GetBedOverview()
