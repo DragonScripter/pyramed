@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { apiFetch } from '../api'
+import { ALL_PERMISSIONS, PERMISSIONS, ROLE_DEFINITIONS, ROLES } from '../config/roles'
+import { hasPermission } from '../utils/auth'
 
 export default function RoleManagement() {
   const [loading, setLoading] = useState(true)
-  const [isAdministrator, setIsAdministrator] = useState(false)
+  const [canManageRoles, setCanManageRoles] = useState(false)
   const [error, setError] = useState('')
   const [roles, setRoles] = useState([])
   const [permissions, setPermissions] = useState([])
@@ -21,10 +23,10 @@ export default function RoleManagement() {
 
        const user = await response.json()
 
-const admin = user.role?.toLowerCase() === 'administrator'
-setIsAdministrator(admin)
+const canManage = hasPermission(user.role, PERMISSIONS.ROLES_WRITE)
+setCanManageRoles(canManage)
 
-if (admin) {
+if (canManage) {
   const rolesResponse = await apiFetch('/api/roles')
 
   if (!rolesResponse.ok) {
@@ -35,13 +37,7 @@ if (admin) {
 
   setRoles(rolesData)
 
-           const availablePermissions = [
-            ...new Set(
-              rolesData.flatMap(role => role.permissions ?? [])
-            )
-          ].sort()
-
-          setPermissions(availablePermissions)
+          setPermissions(ALL_PERMISSIONS)
         }
       } catch (err) {
         setError(err.message)
@@ -58,7 +54,7 @@ function handlePermissionChange(roleId, permission) {
     previousRoles.map(role => {
       if (
         role.roleId !== roleId ||
-        role.name.toLowerCase() === 'administrator'
+        role.name === ROLES.ADMINISTRATOR
       ) {
         return role
       }
@@ -80,7 +76,7 @@ function handlePermissionChange(roleId, permission) {
 }
   
   async function handleSaveRole(role) {
-  if (role.name?.toLowerCase() === 'administrator') return
+  if (role.name === ROLES.ADMINISTRATOR) return
 
   if (!role.roleId) {
     setFeedback({
@@ -138,7 +134,7 @@ function handlePermissionChange(roleId, permission) {
 
   if (error) return <p role="alert">{error}</p>
 
-  if (!isAdministrator) {
+  if (!canManageRoles) {
     return <p role="alert">Access denied. Administrators only.</p>
   }
 
@@ -155,7 +151,7 @@ function handlePermissionChange(roleId, permission) {
           <th scope="col">Permission</th>
           {roles.map(role => (
             <th scope="col" key={role.roleId}>
-              {role.name}
+              {ROLE_DEFINITIONS[role.name]?.label ?? role.name}
             </th>
           ))}
         </tr>
@@ -173,7 +169,7 @@ function handlePermissionChange(roleId, permission) {
               aria-label={`${role.name}: ${permission}`}
               checked={(role.permissions ?? []).includes(permission)}
         onChange={() => handlePermissionChange(role.roleId,permission)}
-              disabled={role.name === 'Administrator'}
+              disabled={role.name === ROLES.ADMINISTRATOR}
             />
               </td>
             ))}
@@ -186,7 +182,7 @@ function handlePermissionChange(roleId, permission) {
       <h2>Save Permission Changes</h2>
 
       {roles
-        .filter(role => role.name !== 'Administrator')
+        .filter(role => role.name !== ROLES.ADMINISTRATOR)
         .map(role => (
           <button
             key={role.roleId}
