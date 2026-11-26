@@ -11,5 +11,6 @@ public interface IAuditLogRepository
     Task<IReadOnlyList<AuditLogEntry>> ListForPatientAsync(
         string patientId, int limit = 100, int offset = 0, CancellationToken ct = default);
     Task<ChainVerification> VerifyChainAsync(CancellationToken ct = default);
+    Task<PagedResult<AuditLogEntry>> QueryAsync(AuditQuery q, CancellationToken ct = default);
 }
 

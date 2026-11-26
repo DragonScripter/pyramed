@@ -110,6 +110,12 @@ builder.Services.AddAuthorization(options =>
         policy.AddRequirements(
             new StaffPermissionRequirement(StaffPermissions.UsersWrite));
     });
+    options.AddPolicy(StaffPermissions.AuditRead, policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.AddRequirements(
+            new StaffPermissionRequirement(StaffPermissions.AuditRead));
+    });
 });
 
 builder.Services.AddScoped<
