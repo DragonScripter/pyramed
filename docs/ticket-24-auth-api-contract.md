@@ -32,19 +32,16 @@ permission by either the API or the UI.
 ```json
 {
   "accessToken": "signed-JWT",
-  "expiresAt": "2026-11-19T18:30:00Z",
-  "user": {
-    "id": "uuid",
-    "email": "clinician@example.com",
-    "fullName": "Example Clinician",
-    "role": "Provider"
-  }
+  "refreshToken": "refresh-token",
+  "tokenType": "Bearer",
+  "expiresIn": 3600
 }
 ```
 
 `accessToken` is a signed, expiring token. Its claims must include the subject
-and role. `expiresAt` is the same instant as the token's `exp` claim, in UTC
-ISO-8601 format, so the client can expire the session without parsing the JWT.
+and role. `expiresIn` is the number of seconds until the access token expires.
+The client calculates the session expiry from this value and then calls
+`GET /api/users/me` to retrieve the authoritative profile.
 The React app retains it in memory only; it must never persist the password.
 
 ### Error responses

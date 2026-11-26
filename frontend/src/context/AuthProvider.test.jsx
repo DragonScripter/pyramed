@@ -60,8 +60,7 @@ function renderProvider(initialPath = '/patients') {
 function mockLogin(expiresAt = new Date(Date.now() + 60_000).toISOString()) {
   loginRequest.mockResolvedValue({
     accessToken: 'signed-token',
-    expiresAt,
-    user: { id: 'user-1', email: 'user@example.com', role: 'Provider' },
+    expiresIn: Math.max(1, Math.ceil((Date.parse(expiresAt) - Date.now()) / 1000)),
   })
   getCurrentUser.mockResolvedValue({
     id: 'user-1', fullName: 'Example Provider', role: 'Provider', avatarUrl: null,
