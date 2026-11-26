@@ -133,6 +133,10 @@ builder.Services.AddDbContext<AuditDbContext>(o =>
 
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 builder.Services.AddScoped<PatientAuditFilter>();
+builder.Services.AddSingleton<IClinicalRuleStore, ClinicalRuleStore>();
+builder.Services.AddControllers()
+    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(
+        new System.Text.Json.Serialization.JsonStringEnumConverter()));
 // Configure CORS for React
 builder.Services.AddCors(options =>
 {
