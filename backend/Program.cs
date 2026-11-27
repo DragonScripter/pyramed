@@ -124,6 +124,7 @@ builder.Services.AddDbContext<AuditDbContext>(o =>
     o.UseNpgsql(builder.Configuration.GetConnectionString("Default"))); 
 
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+builder.Services.AddScoped<IStaffUserResolver, SupabaseStaffUserResolver>();
 builder.Services.AddScoped<PatientAuditFilter>();
 // Configure CORS for React
 builder.Services.AddCors(options =>
