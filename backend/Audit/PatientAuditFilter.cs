@@ -9,16 +9,16 @@ namespace backend.Audit;
 public sealed class PatientAuditFilter : IAsyncActionFilter
 {
     private readonly IAuditLogRepository _auditRepository;
-    private readonly Supabase.Client _supabase;
+    private readonly IStaffUserResolver _staffUserResolver;
     private readonly ILogger<PatientAuditFilter> _logger;
 
     public PatientAuditFilter(
         IAuditLogRepository auditRepository,
-        Supabase.Client supabase,
+        IStaffUserResolver staffUserResolver,
         ILogger<PatientAuditFilter> logger)
     {
         _auditRepository = auditRepository;
-        _supabase = supabase;
+        _staffUserResolver = staffUserResolver;
         _logger = logger;
     }
 
@@ -60,12 +60,9 @@ public sealed class PatientAuditFilter : IAsyncActionFilter
 
         try
         {
-            var response = await _supabase
-                .From<StaffUser>()
-                .Where(user => user.Id == userId)
-                .Get();
-
-            staff = response.Models.FirstOrDefault();
+            staff = await _staffUserResolver.FindByIdAsync(
+                userId,
+                httpContext.RequestAborted);
         }
         catch (Exception ex)
         {
