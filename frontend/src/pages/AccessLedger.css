@@ -32,13 +32,11 @@
 }
 
 .access-ledger__description,
-.access-ledger__filters p,
 .access-ledger__results p {
   margin: 0;
   color: var(--text);
 }
 
-.access-ledger__filters,
 .access-ledger__results {
   padding: 24px;
   border: 1px solid var(--border);
@@ -46,10 +44,111 @@
   background: var(--social-bg);
 }
 
-.access-ledger__filters h2,
 .access-ledger__results h2 {
   margin: 0 0 8px;
   color: var(--text-h);
+}
+
+.access-ledger__read-only-note {
+  font-size: 14px;
+}
+
+.access-ledger__result-count {
+  margin-top: 20px !important;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.access-ledger__table-scroll {
+  margin-top: 12px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.access-ledger__table-scroll:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.access-ledger__table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  color: var(--text-h);
+  font-size: 14px;
+}
+
+.access-ledger__table th,
+.access-ledger__table td {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.access-ledger__table thead th {
+  background: var(--code-bg);
+}
+
+.access-ledger__table thead button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.access-ledger__table thead button:focus-visible,
+.access-ledger__pagination button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.access-ledger__table tbody tr:hover {
+  background: var(--social-bg);
+}
+
+.access-ledger__patient-id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.access-ledger__action {
+  display: inline-flex;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--accent-bg);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.access-ledger__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.access-ledger__pagination button {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-h);
+  cursor: pointer;
+  font: inherit;
+}
+
+.access-ledger__pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 @media (max-width: 640px) {
@@ -58,7 +157,6 @@
     padding: 72px 16px 16px;
   }
 
-  .access-ledger__filters,
   .access-ledger__results {
     padding: 16px;
   }
