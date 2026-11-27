@@ -23,6 +23,7 @@ import './App.css'
 import RoleManagement from './pages/RoleManagement'
 import ProtectedRoute from './components/ProtectedRoute'
 import NotAuthorized from './pages/NotAuthorized'
+import AccessLedger from './pages/AccessLedger'
 const demoVitals = [
   { heartRate: 72, spO2: 98 },
   { heartRate: 72, spO2: 89 },
@@ -158,6 +159,7 @@ function App() {
 
           <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
             <Route path="/admin/roles" element={<RoleManagement />} />
+            <Route path="/access-ledger" element={<AccessLedger />} />
           </Route>
 
           <Route path="*" element={<p>Page not found</p>} />

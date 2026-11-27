@@ -24,6 +24,7 @@ function HamburgerMenu({ patientId }) {
     { label: 'My Profile', to: '/profile' },
     { label: 'Body Composition Dashboard', to: '/body-composition' },
     { label: 'Clinical Analyst Terminal', to: '/clinical-analyst' },
+    { label: 'Patient Access Ledger', to: '/access-ledger', roles: ['admin'] },
     { label: 'Role Management', to: '/admin/roles', roles: ['admin'] },
   ]
 
