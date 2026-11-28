@@ -11,16 +11,15 @@ afterEach(() => {
 })
 
 describe('authentication API client', () => {
-  it('returns the token, expiry, and user supplied by a successful login', async () => {
+  it('returns the token and expiry duration supplied by a successful login', async () => {
     const payload = {
       accessToken: 'signed-token',
-      expiresAt: '2026-11-19T18:30:00Z',
-      user: { id: 'user-1', email: 'clinician@example.com', role: 'PHYSICIAN' },
+      expiresIn: 3600,
     }
     const json = vi.fn().mockResolvedValue(payload)
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, status: 200, json }))
 
-    await expect(login({ email: payload.user.email, password: 'secret' })).resolves.toEqual(payload)
+    await expect(login({ email: 'provider@example.com', password: 'secret' })).resolves.toEqual(payload)
   })
 
   it('returns a generic invalid-credential error without triggering logout handling', async () => {
@@ -48,7 +47,7 @@ describe('authentication API client', () => {
   })
 
   it('returns the authoritative profile from the protected current-user endpoint', async () => {
-    const profile = { id: 'user-1', fullName: 'Example', role: 'PHYSICIAN' }
+    const profile = { id: 'user-1', fullName: 'Example', role: 'Provider' }
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,
       status: 200,

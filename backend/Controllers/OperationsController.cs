@@ -1,6 +1,8 @@
 using backend.Services;
+using backend.Middleware;
 using Microsoft.AspNetCore.Mvc;
 using PyraMed.Api.Models;
+using backend.Security;
 using backend.Audit;
 
 namespace backend.Controllers;
@@ -17,6 +19,7 @@ public sealed class OperationsController : ControllerBase
     }
 
     [HttpGet("metrics")]
+    [RequirePermission(RbacPermissions.AnalyticsRead)]
     [ProducesResponseType(typeof(OperationsMetricsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<OperationsMetricsResponse>> GetMetrics()
@@ -35,6 +38,7 @@ public sealed class OperationsController : ControllerBase
     }
 
     [HttpGet("bed-overview")]
+    [RequirePermission(RbacPermissions.AnalyticsRead)]
     [ServiceFilter(typeof(PatientAuditFilter))]
     [ProducesResponseType(typeof(OperationsBedOverviewResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

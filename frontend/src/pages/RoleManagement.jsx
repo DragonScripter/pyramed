@@ -1,48 +1,76 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { apiFetch } from '../api'
+import {
+  ALL_PERMISSIONS,
+  PERMISSIONS,
+  ROLE_DEFINITIONS,
+  ROLES,
+} from '../config/roles'
+import { hasPermission } from '../utils/auth'
+import './RoleManagement.css'
+
+const ROLE_ORDER = [
+  ROLES.CLERK,
+  ROLES.PROVIDER,
+  ROLES.ANALYST,
+  ROLES.ADMINISTRATOR,
+]
+
+const PERMISSION_GROUPS = [
+  { label: 'Patient data', prefix: 'patients.' },
+  { label: 'Clinical records', prefix: 'records.' },
+  { label: 'Clinical rules', prefix: 'rules.' },
+  { label: 'Insights and audit', prefix: null },
+  { label: 'Role administration', prefix: 'roles.' },
+]
+
+function groupPermissions(permissions) {
+  return PERMISSION_GROUPS.map((group) => ({
+    ...group,
+    permissions: permissions.filter((permission) => {
+      if (group.prefix) return permission.startsWith(group.prefix)
+      return permission.startsWith('analytics.') || permission.startsWith('audit.')
+    }),
+  })).filter((group) => group.permissions.length > 0)
+}
+
+function sortRoles(roles) {
+  return [...roles].sort((left, right) => {
+    const leftIndex = ROLE_ORDER.indexOf(left.name)
+    const rightIndex = ROLE_ORDER.indexOf(right.name)
+    return (leftIndex < 0 ? ROLE_ORDER.length : leftIndex) -
+      (rightIndex < 0 ? ROLE_ORDER.length : rightIndex)
+  })
+}
 
 export default function RoleManagement() {
   const [loading, setLoading] = useState(true)
-  const [isAdministrator, setIsAdministrator] = useState(false)
+  const [canManageRoles, setCanManageRoles] = useState(false)
   const [error, setError] = useState('')
   const [roles, setRoles] = useState([])
-  const [permissions, setPermissions] = useState([])
   const [savingRoleId, setSavingRoleId] = useState(null)
+  const [dirtyRoleIds, setDirtyRoleIds] = useState(new Set())
   const [feedback, setFeedback] = useState(null)
 
   useEffect(() => {
-    async function checkAccess() {
+    async function loadRolePolicy() {
       try {
-        const response = await apiFetch('/api/users/me')
+        const profileResponse = await apiFetch('/api/users/me')
+        if (!profileResponse.ok) throw new Error('Unable to verify your access.')
 
-        if (!response.ok) {
-          throw new Error('Unable to verify your access.')
+        const user = await profileResponse.json()
+        const canManage = hasPermission(user.role, PERMISSIONS.ROLES_WRITE)
+        setCanManageRoles(canManage)
+
+        if (!canManage) return
+
+        const rolesResponse = await apiFetch('/api/roles')
+        if (!rolesResponse.ok) {
+          throw new Error('Unable to load roles and permissions.')
         }
 
-       const user = await response.json()
-
-const admin = user.role?.toLowerCase() === 'administrator'
-setIsAdministrator(admin)
-
-if (admin) {
-  const rolesResponse = await apiFetch('/api/roles')
-
-  if (!rolesResponse.ok) {
-    throw new Error('Unable to load roles and permissions.')
-  }
-
-  const rolesData = await rolesResponse.json()
-
-  setRoles(rolesData)
-
-           const availablePermissions = [
-            ...new Set(
-              rolesData.flatMap(role => role.permissions ?? [])
-            )
-          ].sort()
-
-          setPermissions(availablePermissions)
-        }
+        const rolesData = await rolesResponse.json()
+        setRoles(sortRoles(rolesData))
       } catch (err) {
         setError(err.message)
       } finally {
@@ -50,162 +78,146 @@ if (admin) {
       }
     }
 
-    checkAccess()
+    loadRolePolicy()
   }, [])
 
-function handlePermissionChange(roleId, permission) {
-  setRoles(previousRoles =>
-    previousRoles.map(role => {
-      if (
-        role.roleId !== roleId ||
-        role.name.toLowerCase() === 'administrator'
-      ) {
-        return role
-      }
-
-      const currentPermissions = role.permissions ?? []
-
-      const updatedPermissions = currentPermissions.includes(permission)
-        ? currentPermissions.filter(p => p !== permission)
-        : [...currentPermissions, permission]
-
-      return {
-        ...role,
-        permissions: updatedPermissions
-      }
-    })
+  const permissionGroups = useMemo(
+    () => groupPermissions(ALL_PERMISSIONS),
+    [],
   )
 
-  setFeedback(null)
-}
-  
+  function handlePermissionChange(roleId, permission) {
+    setRoles((previousRoles) => previousRoles.map((role) => {
+      if (role.roleId !== roleId || role.name === ROLES.ADMINISTRATOR) return role
+
+      const currentPermissions = role.permissions ?? []
+      const nextPermissions = currentPermissions.includes(permission)
+        ? currentPermissions.filter((item) => item !== permission)
+        : [...currentPermissions, permission]
+
+      return { ...role, permissions: nextPermissions }
+    }))
+    setDirtyRoleIds((previousIds) => new Set(previousIds).add(roleId))
+    setFeedback(null)
+  }
+
   async function handleSaveRole(role) {
-  if (role.name?.toLowerCase() === 'administrator') return
+    if (role.name === ROLES.ADMINISTRATOR || !dirtyRoleIds.has(role.roleId)) return
 
-  if (!role.roleId) {
-    setFeedback({
-      type: 'error',
-      message: 'Cannot save permissions: invalid role ID.'
-    })
-    return
-  }
+    setSavingRoleId(role.roleId)
+    setFeedback(null)
 
-  if (!Array.isArray(role.permissions)) {
-    setFeedback({
-      type: 'error',
-      message: 'Cannot save: invalid permissions data.'
-    })
-    return
-  }
-
-  setSavingRoleId(role.roleId)
-  setFeedback(null)
-
-  try {
-    const response = await apiFetch(
-      `/api/roles/${role.roleId}/permissions`,
-      {
+    try {
+      const response = await apiFetch(`/api/roles/${role.roleId}/permissions`, {
         method: 'PUT',
-        body: JSON.stringify({
-          permissions: role.permissions ?? []
-        })
+        body: JSON.stringify({ permissions: role.permissions ?? [] }),
+      })
+      const result = await response.json().catch(() => null)
+
+      if (!response.ok) {
+        throw new Error(result?.message ?? `Unable to save permissions (${response.status}).`)
       }
-    )
 
-    const result = await response.json().catch(() => null)
-
-    if (!response.ok) {
-      throw new Error(
-        result?.message ?? `Unable to save permissions (${response.status}).`
-      )
+      setRoles((previousRoles) => previousRoles.map((item) => (
+        item.roleId === role.roleId
+          ? { ...item, permissions: result.permissions ?? item.permissions }
+          : item
+      )))
+      setDirtyRoleIds((previousIds) => {
+        const nextIds = new Set(previousIds)
+        nextIds.delete(role.roleId)
+        return nextIds
+      })
+      setFeedback({ type: 'success', message: `${role.name} permissions saved.` })
+    } catch (err) {
+      setFeedback({ type: 'error', message: err.message || 'Failed to save permissions.' })
+    } finally {
+      setSavingRoleId(null)
     }
-
-    setFeedback({
-      type: 'success',
-      message: `${role.name} permissions saved successfully.`
-    })
-  } catch (err) {
-    setFeedback({
-      type: 'error',
-      message: err.message || 'Failed to save permissions.'
-    })
-  } finally {
-    setSavingRoleId(null)
   }
-}
 
-  if (loading) return <p>Checking administrator access...</p>
-
-  if (error) return <p role="alert">{error}</p>
-
-  if (!isAdministrator) {
-    return <p role="alert">Access denied. Administrators only.</p>
+  if (loading) return <p className="role-management__status">Checking role-management access...</p>
+  if (error) return <p className="role-management__status" role="alert">{error}</p>
+  if (!canManageRoles) {
+    return <p className="role-management__status" role="alert">Access denied. Administrators only.</p>
   }
 
   return (
-  <main className="role-management">
-    <h1>Role Management</h1>
-    <p>Manage staff roles and their assigned permissions.</p>
+    <main className="role-management">
+      <header className="role-management__header">
+        <div>
+          <p className="role-management__eyebrow">Access control</p>
+          <h1>Role Management</h1>
+          <p>Define the access each operational role needs. Administrator permissions are read-only.</p>
+        </div>
+        <span className="role-management__role-count">{roles.length} roles</span>
+      </header>
 
-    <h2>Role Permission Matrix</h2>
+      {feedback && (
+        <p role="status" className={`role-management__feedback role-management__feedback--${feedback.type}`}>
+          {feedback.message}
+        </p>
+      )}
 
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Permission</th>
-          {roles.map(role => (
-            <th scope="col" key={role.roleId}>
-              {role.name}
-            </th>
-          ))}
-        </tr>
-      </thead>
-
-      <tbody>
-        {permissions.map(permission => (
-          <tr key={permission}>
-            <th scope="row">{permission}</th>
-
-            {roles.map(role => (
-              <td key={role.roleId}>
-                <input
-              type="checkbox"
-              aria-label={`${role.name}: ${permission}`}
-              checked={(role.permissions ?? []).includes(permission)}
-        onChange={() => handlePermissionChange(role.roleId,permission)}
-              disabled={role.name === 'Administrator'}
-            />
-              </td>
+      <div className="role-management__matrix-wrapper">
+        <table className="role-management__matrix">
+          <caption>Role-to-permission mapping</caption>
+          <thead>
+            <tr>
+              <th scope="col">Permission</th>
+              {roles.map((role) => (
+                <th scope="col" key={role.roleId}>
+                  <span>{ROLE_DEFINITIONS[role.name]?.label ?? role.name}</span>
+                  <small>{ROLE_DEFINITIONS[role.name]?.description ?? role.description}</small>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {permissionGroups.map((group) => (
+              <tr className="role-management__group" key={group.label}>
+                <th colSpan={roles.length + 1} scope="colgroup">{group.label}</th>
+              </tr>
             ))}
-          </tr>
-        ))}
-            </tbody>
-    </table>
+            {permissionGroups.flatMap((group) => group.permissions.map((permission) => (
+              <tr key={permission}>
+                <th scope="row"><code>{permission}</code></th>
+                {roles.map((role) => {
+                  const isAdministrator = role.name === ROLES.ADMINISTRATOR
+                  return (
+                    <td key={role.roleId}>
+                      <input
+                        type="checkbox"
+                        aria-label={`${role.name}: ${permission}`}
+                        checked={(role.permissions ?? []).includes(permission)}
+                        onChange={() => handlePermissionChange(role.roleId, permission)}
+                        disabled={isAdministrator || savingRoleId === role.roleId}
+                      />
+                    </td>
+                  )
+                })}
+              </tr>
+            ))) }
+          </tbody>
+        </table>
+      </div>
 
-    <div className="role-management-actions">
-      <h2>Save Permission Changes</h2>
-
-      {roles
-        .filter(role => role.name !== 'Administrator')
-        .map(role => (
-          <button
-            key={role.roleId}
-            type="button"
-            onClick={() => handleSaveRole(role)}
-            disabled={savingRoleId !== null}
-          >
-            {savingRoleId === role.roleId
-              ? 'Saving...'
-              : `Save ${role.name}`}
-          </button>
-        ))}
-    </div>
-
-    {feedback && (
-      <p role="alert" className={`feedback-${feedback.type}`}>
-        {feedback.message}
-      </p>
-    )}
-  </main>
-)
+      <section className="role-management__actions" aria-labelledby="save-role-heading">
+        <h2 id="save-role-heading">Save changes</h2>
+        <div className="role-management__buttons">
+          {roles.filter((role) => role.name !== ROLES.ADMINISTRATOR).map((role) => (
+            <button
+              key={role.roleId}
+              type="button"
+              onClick={() => handleSaveRole(role)}
+              disabled={savingRoleId !== null || !dirtyRoleIds.has(role.roleId)}
+            >
+              {savingRoleId === role.roleId ? 'Saving...' : `Save ${role.name}`}
+              {dirtyRoleIds.has(role.roleId) && savingRoleId !== role.roleId ? ' *' : ''}
+            </button>
+          ))}
+        </div>
+      </section>
+    </main>
+  )
 }

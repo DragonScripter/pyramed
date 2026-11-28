@@ -16,9 +16,9 @@ vi.mock('../context/useAuth', () => ({ useAuth }))
 
 const authenticatedUser = {
   id: 'user-1',
-  fullName: 'Example Nurse',
-  email: 'nurse@example.com',
-  role: 'NURSE',
+  fullName: 'Example Provider',
+  email: 'provider@example.com',
+  role: 'Provider',
   avatarUrl: null,
 }
 
@@ -35,9 +35,9 @@ describe('UserProfile', () => {
   it('shows the authenticated user without reading a separate browser session', () => {
     render(<UserProfile />)
 
-    expect(screen.getByText('Example Nurse')).toBeInTheDocument()
-    expect(screen.getByText('nurse@example.com')).toBeInTheDocument()
-    expect(screen.getByText('NURSE')).toBeInTheDocument()
+    expect(screen.getByText('Example Provider')).toBeInTheDocument()
+    expect(screen.getByText('provider@example.com')).toBeInTheDocument()
+    expect(screen.getByText('Provider')).toBeInTheDocument()
     expect(apiFetch).not.toHaveBeenCalled()
   })
 
@@ -47,29 +47,29 @@ describe('UserProfile', () => {
       status: 200,
       json: vi.fn().mockResolvedValue({
         id: 'user-1',
-        fullName: 'Updated Nurse',
+        fullName: 'Updated Provider',
         avatarUrl: null,
-        role: 'NURSE',
+        role: 'Provider',
       }),
     })
     render(<UserProfile />)
 
     fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
     fireEvent.change(screen.getByRole('textbox', { name: 'Name' }), {
-      target: { value: 'Updated Nurse' },
+      target: { value: 'Updated Provider' },
     })
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
     await waitFor(() => expect(screen.getByText('Profile updated successfully.')).toBeInTheDocument())
     expect(apiFetch).toHaveBeenCalledWith('/api/users/me', {
       method: 'PUT',
-      body: JSON.stringify({ fullName: 'Updated Nurse' }),
+      body: JSON.stringify({ fullName: 'Updated Provider' }),
     })
     expect(updateUser).toHaveBeenCalledWith({
       id: 'user-1',
-      fullName: 'Updated Nurse',
+      fullName: 'Updated Provider',
       avatarUrl: '',
-      role: 'NURSE',
+      role: 'Provider',
     })
   })
 })

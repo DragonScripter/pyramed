@@ -65,7 +65,7 @@ describe('LoginPage', () => {
   })
 
   it('submits normalized credentials and returns to the requested internal path', async () => {
-    login.mockResolvedValue({ id: 'user-1', role: 'PHYSICIAN' })
+    login.mockResolvedValue({ id: 'user-1', role: 'Provider' })
     useAuth.mockReturnValue({ isAuthenticated: false, isLoading: false, login })
     renderLogin({ pathname: '/login', state: { from: '/body-composition' } })
 

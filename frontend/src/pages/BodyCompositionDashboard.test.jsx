@@ -13,6 +13,14 @@ vi.mock('../supabaseClient', () => ({
     removeChannel: vi.fn(),
   },
 }))
+vi.mock('../context/useAuth', () => ({
+  useAuth: () => ({
+    user: { role: 'Administrator' },
+    isAuthenticated: true,
+    isLoading: false,
+    logout: vi.fn(),
+  }),
+}))
 
 vi.mock('../components/PatientDemographicsCard', () => ({ default: () => null }))
 

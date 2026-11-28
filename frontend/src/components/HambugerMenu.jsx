@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link, useMatch } from 'react-router-dom'
 import { useAuth } from '../context/useAuth' // match the export style in useAuth.js
+import { PERMISSIONS } from '../config/roles'
+import { hasPermission } from '../utils/auth'
 import './HamburgerMenu.css'
 
 function HamburgerMenu({ patientId }) {
@@ -19,18 +21,18 @@ function HamburgerMenu({ patientId }) {
     ...(currentPatientId
       ? [{ label: 'Patient Info', to: `/patients/${currentPatientId}` }]
       : []),
-    { label: 'Patient Registration', to: '/registration', roles: ['admin', 'nurse'] },
+    { label: 'Patient Registration', to: '/registration', permission: PERMISSIONS.PATIENTS_WRITE },
     { label: 'Demo Telemetry', to: '/demo-telemetry' },
     { label: 'My Profile', to: '/profile' },
     { label: 'Body Composition Dashboard', to: '/body-composition' },
     { label: 'Clinical Analyst Terminal', to: '/clinical-analyst' },
-    { label: 'Role Management', to: '/admin/roles', roles: ['admin'] },
+    { label: 'Role Management', to: '/admin/roles', permission: PERMISSIONS.ROLES_WRITE },
   ]
 
   const visibleItems = items.filter((item) => {
     if (item.public) return true
     if (!isAuthenticated) return false
-    return !item.roles || item.roles.includes(user?.role)
+    return !item.permission || hasPermission(user?.role, item.permission)
   })
 
   const handleLogout = async () => {

@@ -19,6 +19,13 @@ function getExpiryTime(expiresAt) {
   return Number.isNaN(expiryTime) ? null : expiryTime
 }
 
+function getExpiresAt(expiresIn) {
+  const seconds = Number(expiresIn)
+  if (!Number.isFinite(seconds) || seconds <= 0) return null
+
+  return new Date(Date.now() + seconds * 1000).toISOString()
+}
+
 export function AuthProvider({ children }) {
   const navigate = useNavigate()
   const location = useLocation()
@@ -48,7 +55,8 @@ export function AuthProvider({ children }) {
 
       try {
         const loginResult = await loginRequest({ email, password })
-        const expiryTime = getExpiryTime(loginResult.expiresAt)
+        const expiresAt = getExpiresAt(loginResult.expiresIn)
+        const expiryTime = getExpiryTime(expiresAt)
 
         if (!expiryTime || expiryTime <= Date.now()) {
           throw new Error('The server returned an expired login session.')
@@ -61,7 +69,7 @@ export function AuthProvider({ children }) {
         setSession({
           user,
           token: loginResult.accessToken,
-          expiresAt: loginResult.expiresAt,
+          expiresAt,
         })
 
         return user

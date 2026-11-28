@@ -23,6 +23,7 @@ import './App.css'
 import RoleManagement from './pages/RoleManagement'
 import ProtectedRoute from './components/ProtectedRoute'
 import NotAuthorized from './pages/NotAuthorized'
+import { PERMISSIONS, ROLES } from './config/roles'
 const demoVitals = [
   { heartRate: 72, spO2: 98 },
   { heartRate: 72, spO2: 89 },
@@ -152,11 +153,11 @@ function App() {
             <Route path="/clinical-analyst" element={<ClinicalAnalystTerminal />} />
           </Route>
 
-          <Route element={<ProtectedRoute allowedRoles={['admin', 'nurse']} />}>
+          <Route element={<ProtectedRoute requiredPermission={PERMISSIONS.PATIENTS_WRITE} />}>
             <Route path="/registration" element={<Registration />} />
           </Route>
 
-          <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+          <Route element={<ProtectedRoute allowedRoles={[ROLES.ADMINISTRATOR]} requiredPermission={PERMISSIONS.ROLES_WRITE} />}>
             <Route path="/admin/roles" element={<RoleManagement />} />
           </Route>
 

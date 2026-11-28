@@ -25,6 +25,14 @@ const { channel, supabase } = vi.hoisted(() => {
 
 vi.mock('./supabaseClient', () => ({ supabase }))
 vi.mock('./components/PatientDemographicsCard', () => ({ default: () => null }))
+vi.mock('./context/useAuth', () => ({
+  useAuth: () => ({
+    user: { role: 'Administrator' },
+    isAuthenticated: true,
+    isLoading: false,
+    logout: vi.fn(),
+  }),
+}))
 
 afterEach(() => {
   cleanup()

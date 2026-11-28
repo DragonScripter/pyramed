@@ -25,7 +25,7 @@ export async function login({ email, password }) {
   }
 
   const payload = await response.json().catch(() => null)
-  if (!payload?.accessToken || !payload?.expiresAt || !payload?.user) {
+  if (!payload?.accessToken || !Number.isFinite(Number(payload?.expiresIn)) || Number(payload.expiresIn) <= 0) {
     throw new AuthApiError('The server returned an invalid login response.', 500)
   }
 
