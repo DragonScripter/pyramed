@@ -77,9 +77,16 @@ export default function WelcomePage() {
             A hospital operations simulator that shows how healthcare software
             systems work together, and what happens when one of them changes.
           </p>
-          <div className="welcome-cta">
-            <Link to="/login" className="btn btn-primary">Log in</Link>
-            <Link to="/register" className="btn btn-secondary">Register</Link>
+                   <div className="welcome-cta">
+            <Link to="/demo-telemetry" className="btn btn-primary">
+              Try the simulation
+            </Link>
+            <Link to="/login" className="btn btn-secondary">
+              Log in
+            </Link>
+            <Link to="/registration" className="btn btn-secondary">
+              Register
+            </Link>
           </div>
         </section>
 
